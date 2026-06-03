@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "17/04/2026",
+    "TIME": "22:15:02",
+    "ACCOUNT": "KMA (บัญชีเล็ก)",
+    "DESCRIPTION": "โอนเงินให้ วันเพชร ศรีพรมมา ทางเกงกิผ่า 2 ตัว",
+    "TYPE": "การโอนย้ายเงิน : ถอนเงิน / โอนเงิน",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "วันเพชร ศรีพรมมา",
+    "INCOME": 0,
+    "EXPENSE": 158,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

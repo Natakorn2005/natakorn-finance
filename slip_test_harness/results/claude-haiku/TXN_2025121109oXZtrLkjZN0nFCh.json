@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "11/06/2025",
+    "TIME": "00:02:00",
+    "ACCOUNT": "SCB (บัญชีกลาง)",
+    "DESCRIPTION": "ซูตเบอร์เกอร์ไก่ทอดสไปซี่",
+    "TYPE": "อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "ควินธิร์",
+    "INCOME": 0,
+    "EXPENSE": 75,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

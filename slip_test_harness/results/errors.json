@@ -1,0 +1,52 @@
+{
+  "claude-sonnet": [
+    {
+      "slip": "receipt_20260125115249.jpg",
+      "error": "Connection error."
+    },
+    {
+      "slip": "receipt_20260201125344.jpg",
+      "error": "Connection error."
+    },
+    {
+      "slip": "receipt_20260210075306.jpg",
+      "error": "Connection error."
+    },
+    {
+      "slip": "receipt_20260214062513.jpg",
+      "error": "Connection error."
+    },
+    {
+      "slip": "receipt_20260323050357.jpg",
+      "error": "Connection error."
+    },
+    {
+      "slip": "receipt_20260416072359.jpg",
+      "error": "Connection error."
+    },
+    {
+      "slip": "Screenshot_20260528_230726_Grab.jpg",
+      "error": "Connection error."
+    },
+    {
+      "slip": "Screenshot_20260528_235441_7-Eleven.jpg",
+      "error": "Connection error."
+    },
+    {
+      "slip": "Screenshot_20260528_235735_7-Eleven.jpg",
+      "error": "Connection error."
+    },
+    {
+      "slip": "TXN_2025121109oXZtrLkjZN0nFCh.jpg",
+      "error": "Connection error."
+    },
+    {
+      "slip": "TXN_202604308qtFnkxbVBM7hEV8P (1).jpg",
+      "error": "Connection error."
+    },
+    {
+      "slip": "TXN_202605091VeX31Ap6W0U1lfU6.jpg",
+      "error": "Connection error."
+    }
+  ]
+}

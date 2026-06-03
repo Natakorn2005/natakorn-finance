@@ -1,0 +1,44 @@
+[
+  {
+    "DATE": "05/05/2026",
+    "TIME": "16:15:00",
+    "ACCOUNT": "เงินสด",
+    "DESCRIPTION": "ยาแก้ท้องอัดแอร์เบิก",
+    "TYPE": "สุขภาพ / ค่ารักษาพยาบาล",
+    "REIMBURSE": false,
+    "REPAY": true,
+    "PAYEE_PAYER": "7-Eleven บ้านตั้งสิน (ศาลายา)",
+    "INCOME": 0,
+    "EXPENSE": 20,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  },
+  {
+    "DATE": "05/05/2026",
+    "TIME": "16:15:00",
+    "ACCOUNT": "เงินสด",
+    "DESCRIPTION": "ดีบลเบิ้ลแซนด์วิชกระเล",
+    "TYPE": "อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "7-Eleven บ้านตั้งสิน (ศาลายา)",
+    "INCOME": 0,
+    "EXPENSE": 22,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  },
+  {
+    "DATE": "05/05/2026",
+    "TIME": "16:15:00",
+    "ACCOUNT": "เงินสด",
+    "DESCRIPTION": "น้ิมเบิ้ส เสาวรสน",
+    "TYPE": "อาหารและเครื่องดื่ม : เครื่องดื่ม",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "7-Eleven บ้านตั้งสิน (ศาลายา)",
+    "INCOME": 0,
+    "EXPENSE": 15,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

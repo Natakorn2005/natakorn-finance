@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "07/05/2025",
+    "TIME": "20:13:16",
+    "ACCOUNT": "KMA (บัญชีเล็ก)",
+    "DESCRIPTION": "ข้าวเหนียวหมูปิ้งไก่ปิ้ง",
+    "TYPE": "อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "หมูปิ้งลอยฟ้า",
+    "INCOME": 0,
+    "EXPENSE": 40,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

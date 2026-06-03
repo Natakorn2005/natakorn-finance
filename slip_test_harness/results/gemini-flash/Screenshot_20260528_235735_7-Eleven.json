@@ -1,0 +1,30 @@
+[
+  {
+    "DATE": "19/05/2026",
+    "TIME": "23:57:00",
+    "ACCOUNT": "Truemoney Wallet",
+    "DESCRIPTION": "น้ำส้มสายชูกลั่น ตร",
+    "TYPE": "อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "7-Eleven เอกชัย 42",
+    "INCOME": 0,
+    "EXPENSE": 24.0,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  },
+  {
+    "DATE": "19/05/2026",
+    "TIME": "23:57:00",
+    "ACCOUNT": "Truemoney Wallet",
+    "DESCRIPTION": "น้ำยาซักผ้าขาวไฮเต",
+    "TYPE": "ความบันเทิง : ของใช้ส่วนตัว",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "7-Eleven เอกชัย 42",
+    "INCOME": 0,
+    "EXPENSE": 29.0,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

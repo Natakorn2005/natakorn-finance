@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "30/04/2025",
+    "TIME": "20:07:00",
+    "ACCOUNT": "Truemoney Wallet",
+    "DESCRIPTION": "สนุกปากน่ำบ้าน อาหารของหวาน เครื่องดื่ม",
+    "TYPE": "อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "สนุกปากน่ำบ้าน",
+    "INCOME": 0,
+    "EXPENSE": 12.5,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

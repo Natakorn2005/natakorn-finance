@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "17/01/2026",
+    "TIME": "22:15:02",
+    "ACCOUNT": "KMA (บัญชีเล็ก)",
+    "DESCRIPTION": "กางเกงกีฬา 2 ตัว",
+    "TYPE": "ความบันเทิง : เสื้อผ้า / เครื่องแต่งกาย",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "นาง วันเพ็ญ ศรีพรมมา",
+    "INCOME": 0,
+    "EXPENSE": 158,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

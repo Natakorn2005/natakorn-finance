@@ -1,0 +1,10 @@
+{
+  "claude-sonnet": {
+    "model": "Claude Sonnet 4.6",
+    "model_id": "claude-sonnet-4-6",
+    "run_at": "2026-06-02T17:47:45.941680",
+    "total_slips": 8,
+    "errors": 12,
+    "ground_truth_available": 0
+  }
+}

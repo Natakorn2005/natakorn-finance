@@ -1,0 +1,46 @@
+{
+  "_instructions": {
+    "note": "Key = your slip image filename (exact, including extension). Value = array of correct rows.",
+    "single_item_slip": "One object in the array.",
+    "multi_item_slip": "One object per item (e.g. 7-Eleven with 3 products = 3 objects).",
+    "TYPE_confidence": "Write the TYPE without the trailing '?' — the scorer ignores it.",
+    "amounts": "Use numbers, not strings. e.g. 50 not '50'.",
+    "boolean": "Use true/false (lowercase), not 'TRUE'/'FALSE'.",
+    "empty_string": "Use '' for DESTINATION_ACCOUNT when not a transfer.",
+    "delete_this_key": "Remove this _instructions block before running the harness."
+  },
+
+  "slip_001.jpg": [
+    {
+      "DATE": "01/06/2026",
+      "TIME": "14:30:00",
+      "ACCOUNT": "KMA (บัญชีเล็ก)",
+      "DESCRIPTION": "ข้าวมันไก่",
+      "TYPE": "อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม",
+      "REIMBURSE": false,
+      "REPAY": false,
+      "PAYEE_PAYER": "ร้านข้าวมันไก่",
+      "INCOME": 0,
+      "EXPENSE": 50,
+      "TRANSFER": 0,
+      "DESTINATION_ACCOUNT": ""
+    }
+  ],
+
+  "slip_002.jpg": [
+    {
+      "DATE": "02/06/2026",
+      "TIME": "09:15:00",
+      "ACCOUNT": "SCB (บัญชีกลาง)",
+      "DESCRIPTION": "โอนไป Truemoney",
+      "TYPE": "การโอนย้ายเงิน : ถอนเงิน / โอนเงิน",
+      "REIMBURSE": false,
+      "REPAY": false,
+      "PAYEE_PAYER": "นฐกร วิเศษวงศ์สหกิจ",
+      "INCOME": 0,
+      "EXPENSE": 0,
+      "TRANSFER": 200,
+      "DESTINATION_ACCOUNT": "Truemoney Wallet"
+    }
+  ]
+}

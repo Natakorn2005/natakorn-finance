@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "30/04/2026",
+    "TIME": "18:38:00",
+    "ACCOUNT": "SCB (บัญชีใหญ่)",
+    "DESCRIPTION": "โค้กซีโร่",
+    "TYPE": "อาหารและเครื่องดื่ม : เครื่องดื่ม",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "ถุงเงิน (CHUCHU BLACKMONKEY)",
+    "INCOME": 0,
+    "EXPENSE": 25.0,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

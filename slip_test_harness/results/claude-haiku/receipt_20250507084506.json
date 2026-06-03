@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "07/05/2025",
+    "TIME": "08:45:02",
+    "ACCOUNT": "KMA (บัญชีเล็ก)",
+    "DESCRIPTION": "โอนเงินสำเร็จ",
+    "TYPE": "การโอนย้ายเงิน : ถอนเงิน / โอนเงิน",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "นาย พีรกิจ วิโรจนศิร คัฒก",
+    "INCOME": 0,
+    "EXPENSE": 0,
+    "TRANSFER": 20,
+    "DESTINATION_ACCOUNT": "เงินสด"
+  }
+]

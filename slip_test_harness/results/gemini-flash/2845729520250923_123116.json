@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "23/09/2025",
+    "TIME": "12:27:30",
+    "ACCOUNT": "Anywheel Wallet",
+    "DESCRIPTION": "City Bike Rental (Device ID: 6610042227)",
+    "TYPE": "การเดินทาง : ขนส่งสาธารณะ",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "City Bike Rental",
+    "INCOME": 0,
+    "EXPENSE": 10,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "02/05/2026",
+    "TIME": "15:30:00",
+    "ACCOUNT": "เงินสด",
+    "DESCRIPTION": "Grab ride from Uniloft Salaya Building B to Central Plaza Salaya",
+    "TYPE": "การเดินทาง : แท็กซี่ / วินมอเตอร์ไซค์",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "Grab Driver",
+    "INCOME": 0,
+    "EXPENSE": 89,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

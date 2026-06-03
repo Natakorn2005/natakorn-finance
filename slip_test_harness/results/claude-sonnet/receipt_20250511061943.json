@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "11/05/2025",
+    "TIME": "18:19:39",
+    "ACCOUNT": "KMA (บัญชีเล็ก)",
+    "DESCRIPTION": "ผัดไทยปลาหมึกพิเศษ",
+    "TYPE": "อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "นายเสพล ผจงศิลป์",
+    "INCOME": 0,
+    "EXPENSE": 60,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

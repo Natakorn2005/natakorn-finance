@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "25/01/2026",
+    "TIME": "11:52:39",
+    "ACCOUNT": "KMA (บัญชีเล็ก)",
+    "DESCRIPTION": "โออิชัง",
+    "TYPE": "อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "ร้านถุงเงิน (ร้านน้ำเล็ก MLC)",
+    "INCOME": 0,
+    "EXPENSE": 22.0,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

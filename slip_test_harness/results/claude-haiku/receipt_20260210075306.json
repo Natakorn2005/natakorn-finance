@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "10/04/2026",
+    "TIME": "19:52:56",
+    "ACCOUNT": "KMA (บัญชีเล็ก)",
+    "DESCRIPTION": "เติมเงินสำเร็จ",
+    "TYPE": "การโอนย้ายเงิน : ถอนเงิน / โอนเงิน",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "NATAKORN WISE",
+    "INCOME": 0,
+    "EXPENSE": 0,
+    "TRANSFER": 100,
+    "DESTINATION_ACCOUNT": "Truemoney Wallet"
+  }
+]

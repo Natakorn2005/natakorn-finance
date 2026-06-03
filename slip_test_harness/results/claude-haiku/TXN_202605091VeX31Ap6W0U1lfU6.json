@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "09/05/2026",
+    "TIME": "22:21:00",
+    "ACCOUNT": "SCB (บัญชีกลาง)",
+    "DESCRIPTION": "ค่าเข้าร่วมกิจกรรม",
+    "TYPE": "ความบันเทิง : ค่าเข้าร่วมกิจกรรม",
+    "REIMBURSE": false,
+    "REPAY": true,
+    "PAYEE_PAYER": "คุณเงิน (มามี่ ทรงเครื่อง)",
+    "INCOME": 0,
+    "EXPENSE": 45,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

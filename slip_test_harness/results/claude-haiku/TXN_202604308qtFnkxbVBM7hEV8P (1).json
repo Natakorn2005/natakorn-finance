@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "30/04/2026",
+    "TIME": "18:38:00",
+    "ACCOUNT": "SCB (บัญชีใหญ่)",
+    "DESCRIPTION": "โดกชี่ไร่",
+    "TYPE": "รายจ่ายประจำเดือน : ค่าบริการรายเดือน?",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "คุณเจิน (CHUCHU BLACKMONKEY)",
+    "INCOME": 0,
+    "EXPENSE": 25,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

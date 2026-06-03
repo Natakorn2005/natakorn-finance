@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "01/07/2026",
+    "TIME": "12:53:34",
+    "ACCOUNT": "KMA (บัญชีเล็ก)",
+    "DESCRIPTION": "โอนเงินสำเร็จ คืนเงินทรศค่าอยุ่นลอฟท์",
+    "TYPE": "รายจ่ายประจำเดือน : ค่าหอพัก",
+    "REIMBURSE": true,
+    "REPAY": false,
+    "PAYEE_PAYER": "นาย ภัทรพงศ์ ไชเรีย",
+    "INCOME": 0,
+    "EXPENSE": 3500,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

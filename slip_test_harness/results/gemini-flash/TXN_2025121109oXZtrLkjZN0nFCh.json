@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "11/12/2025",
+    "TIME": "00:02:00",
+    "ACCOUNT": "SCB (บัญชีกลาง)",
+    "DESCRIPTION": "ชุดเบอร์เกอร์ไก่ทอดสไปซี่",
+    "TYPE": "อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "ทวินธรี",
+    "INCOME": 0,
+    "EXPENSE": 75.0,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

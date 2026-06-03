@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "10/02/2026",
+    "TIME": "19:52:56",
+    "ACCOUNT": "KMA (บัญชีเล็ก)",
+    "DESCRIPTION": "เติมเงิน Truemoney Wallet",
+    "TYPE": "การโอนย้ายเงิน : ถอนเงิน / โอนเงิน",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "ทรูมันนี่ (e-Wallet)",
+    "INCOME": 0,
+    "EXPENSE": 0,
+    "TRANSFER": 100.0,
+    "DESTINATION_ACCOUNT": "Truemoney Wallet"
+  }
+]

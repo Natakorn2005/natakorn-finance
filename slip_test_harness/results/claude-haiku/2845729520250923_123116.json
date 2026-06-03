@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "23/09/2025",
+    "TIME": "12:19:58",
+    "ACCOUNT": "Anywheel Wallet",
+    "DESCRIPTION": "City Bike rental",
+    "TYPE": "การเดินทาง : ขนส่งสาธารณะ",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "City Bike",
+    "INCOME": 0,
+    "EXPENSE": 10,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

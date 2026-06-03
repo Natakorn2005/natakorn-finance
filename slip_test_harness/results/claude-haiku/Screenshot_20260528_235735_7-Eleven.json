@@ -1,0 +1,44 @@
+[
+  {
+    "DATE": "19/05/2026",
+    "TIME": "23:57:00",
+    "ACCOUNT": "เงินสด",
+    "DESCRIPTION": "หน้าสัมสายบถลิน ตร",
+    "TYPE": "อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "7-Eleven เอกชัย 42",
+    "INCOME": 0,
+    "EXPENSE": 24,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  },
+  {
+    "DATE": "19/05/2026",
+    "TIME": "23:57:00",
+    "ACCOUNT": "เงินสด",
+    "DESCRIPTION": "น้ำยาบิกผ้างวโซเต",
+    "TYPE": "อาหารและเครื่องดื่ม : เครื่องดื่ม",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "7-Eleven เอกชัย 42",
+    "INCOME": 0,
+    "EXPENSE": 29,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  },
+  {
+    "DATE": "19/05/2026",
+    "TIME": "23:57:00",
+    "ACCOUNT": "เงินสด",
+    "DESCRIPTION": "ยอดสูตร 2 ชิ้น",
+    "TYPE": "อาหารและเครื่องดื่ม : ขนมและของกินเล่น",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "7-Eleven เอกชัย 42",
+    "INCOME": 0,
+    "EXPENSE": 53,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

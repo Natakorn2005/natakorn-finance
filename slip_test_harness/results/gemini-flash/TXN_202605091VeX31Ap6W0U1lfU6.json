@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "09/05/2026",
+    "TIME": "22:21:00",
+    "ACCOUNT": "SCB (บัญชีใหญ่)",
+    "DESCRIPTION": "มาม่าหมูเด้ง",
+    "TYPE": "อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม",
+    "REIMBURSE": false,
+    "REPAY": false,
+    "PAYEE_PAYER": "ถุงเงิน (มาม่า ทรงเครื่อง)",
+    "INCOME": 0,
+    "EXPENSE": 45.0,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]

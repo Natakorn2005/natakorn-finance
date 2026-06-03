@@ -1,0 +1,16 @@
+[
+  {
+    "DATE": "14/02/2026",
+    "TIME": "18:25:07",
+    "ACCOUNT": "KMA (บัญชีเล็ก)",
+    "DESCRIPTION": "ค่าข้าว IKEA",
+    "TYPE": "อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม",
+    "REIMBURSE": true,
+    "REPAY": false,
+    "PAYEE_PAYER": "นาย ภัทรพงศ์ ใจเร็ว",
+    "INCOME": 0,
+    "EXPENSE": 143,
+    "TRANSFER": 0,
+    "DESTINATION_ACCOUNT": ""
+  }
+]
