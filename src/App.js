@@ -21,21 +21,27 @@ import {
   LayoutDashboard, Upload as UploadIcon, List, Target,
   Settings as SettingsIcon, PenLine, FileUp, Wallet,
   LogOut, BookOpen, PiggyBank, CreditCard, ReceiptText,
-  TrendingUp, BookMarked, Printer,
+  TrendingUp, BookMarked, Printer, MoreHorizontal,
 } from 'lucide-react';
-import { bootstrapSync } from './services/transactionService'; // NEW
+import { bootstrapSync } from './services/transactionService';
 import './App.css';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
+  const [showMore, setShowMore] = useState(false);
 
-  // existing — session restore
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth <= 900);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+
   useEffect(() => {
     const session = localStorage.getItem('auth_session');
     if (session === 'true') setIsLoggedIn(true);
   }, []);
 
-  // NEW — auto-pull from Sheet + drain offline queue on login
   useEffect(() => {
     if (isLoggedIn) bootstrapSync();
   }, [isLoggedIn]);
@@ -51,106 +57,75 @@ function App() {
 
   return (
     <Router>
-      <div className="app">
+      <div style={{ display:'flex', flexDirection: isMobile ? 'column' : 'row', minHeight:'100vh' }}>
 
         {/* ── Desktop Sidebar ── */}
-        <nav className="sidebar">
-
-          {/* Logo */}
-          <div className="logo">
-            <div className="logo-icon">FT</div>
-            <div className="logo-text">
-              <span>FinanceTrack</span>
-              <span>Personal Finance</span>
+        {!isMobile && (
+          <nav className="sidebar">
+            <div className="logo">
+              <div className="logo-icon">FT</div>
+              <div className="logo-text">
+                <span>FinanceTrack</span>
+                <span>Personal Finance</span>
+              </div>
             </div>
-          </div>
 
-          {/* Overview */}
-          <div className="sidebar-section">Overview</div>
-          <NavLink to="/" end><LayoutDashboard size={17}/> Dashboard</NavLink>
-          <NavLink to="/accounts"><Wallet size={17}/> Accounts</NavLink>
+            <div className="sidebar-section">Overview</div>
+            <NavLink to="/" end><LayoutDashboard size={17}/> Dashboard</NavLink>
+            <NavLink to="/accounts"><Wallet size={17}/> Accounts</NavLink>
 
-          {/* Record */}
-          <div className="sidebar-section">Record</div>
-          <NavLink to="/upload"><UploadIcon size={17}/> Upload Slip</NavLink>
-          <NavLink to="/manual"><PenLine size={17}/> Manual Entry</NavLink>
-          <NavLink to="/transactions"><List size={17}/> Transactions</NavLink>
+            <div className="sidebar-section">Record</div>
+            <NavLink to="/upload"><UploadIcon size={17}/> Upload Slip</NavLink>
+            <NavLink to="/manual"><PenLine size={17}/> Manual Entry</NavLink>
+            <NavLink to="/transactions"><List size={17}/> Transactions</NavLink>
 
-          {/* Planning */}
-          <div className="sidebar-section">Planning</div>
-          <NavLink to="/planning"><Target size={17}/> Planning</NavLink>
-          <NavLink to="/budget"><BookOpen size={17}/> Budget Tracker</NavLink>
-          <NavLink to="/goals"><PiggyBank size={17}/> Savings Goals</NavLink>
+            <div className="sidebar-section">Planning</div>
+            <NavLink to="/planning"><Target size={17}/> Planning</NavLink>
+            <NavLink to="/budget"><BookOpen size={17}/> Budget Tracker</NavLink>
+            <NavLink to="/goals"><PiggyBank size={17}/> Savings Goals</NavLink>
 
-          {/* Finance */}
-          <div className="sidebar-section">Finance</div>
-          <NavLink to="/debt"><CreditCard size={17}/> Debt</NavLink>
-          <NavLink to="/repay"><ReceiptText size={17}/> Repay</NavLink>
-          <NavLink to="/investment"><TrendingUp size={17}/> Investment</NavLink>
+            <div className="sidebar-section">Finance</div>
+            <NavLink to="/debt"><CreditCard size={17}/> Debt</NavLink>
+            <NavLink to="/repay"><ReceiptText size={17}/> Repay</NavLink>
+            <NavLink to="/investment"><TrendingUp size={17}/> Investment</NavLink>
 
-          {/* System */}
-          <div className="sidebar-section">System</div>
-          <NavLink to="/importexport"><FileUp size={17}/> Import / Export</NavLink>
-          <NavLink to="/print"><Printer size={17}/> Print Report</NavLink>
-          <NavLink to="/readme"><BookMarked size={17}/> README</NavLink>
-          <NavLink to="/settings"><SettingsIcon size={17}/> Settings</NavLink>
+            <div className="sidebar-section">System</div>
+            <NavLink to="/importexport"><FileUp size={17}/> Import / Export</NavLink>
+            <NavLink to="/print"><Printer size={17}/> Print Report</NavLink>
+            <NavLink to="/readme"><BookMarked size={17}/> README</NavLink>
+            <NavLink to="/settings"><SettingsIcon size={17}/> Settings</NavLink>
 
-          {/* Spacer + Logout */}
-          <div style={{ flex: 1 }} />
-          {/* User Profile */}
-          <div className="sidebar-profile">
-            <div className="sidebar-profile-avatar">NW</div>
-            <div className="sidebar-profile-info">
-              <span>Natakorn</span>
-              <span>Personal Finance</span>
+            <div style={{ flex: 1 }} />
+            <div className="sidebar-profile">
+              <div className="sidebar-profile-avatar">NW</div>
+              <div className="sidebar-profile-info">
+                <span>Natakorn</span>
+                <span>Personal Finance</span>
+              </div>
             </div>
-          </div>
-          <button
-            onClick={handleLogout}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 10,
-              color: 'rgba(255,255,255,0.6)', background: 'none',
-              border: 'none', cursor: 'pointer',
-              padding: '11px 20px', margin: '4px 10px 16px',
-              borderRadius: 10, fontSize: 13.5, width: 'calc(100% - 20px)',
-              transition: 'all 0.18s', fontFamily: 'inherit', fontWeight: 500,
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
-              e.currentTarget.style.color = '#fff';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = 'none';
-              e.currentTarget.style.color = 'rgba(255,255,255,0.6)';
-            }}
-          >
-            <LogOut size={17}/> Logout
-          </button>
-        </nav>
+            <button onClick={handleLogout} style={{ display:'flex', alignItems:'center', gap:10, color:'rgba(255,255,255,0.6)', background:'none', border:'none', cursor:'pointer', padding:'11px 20px', margin:'4px 10px 16px', borderRadius:10, fontSize:13.5, width:'calc(100% - 20px)', transition:'all 0.18s', fontFamily:'inherit', fontWeight:500 }}
+              onMouseEnter={e=>{ e.currentTarget.style.background='rgba(255,255,255,0.15)'; e.currentTarget.style.color='#fff'; }}
+              onMouseLeave={e=>{ e.currentTarget.style.background='none'; e.currentTarget.style.color='rgba(255,255,255,0.6)'; }}>
+              <LogOut size={17}/> Logout
+            </button>
+          </nav>
+        )}
 
         {/* ── Mobile Header ── */}
-        <div className="mobile-header">
-          <div className="mobile-header-logo">
-            <div className="mobile-header-logo-icon">FT</div>
-            FinanceTrack
+        {isMobile && (
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'linear-gradient(90deg,#0d9488,#16a34a)', padding:'12px 16px', position:'sticky', top:0, zIndex:99, color:'#fff' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8, fontWeight:800, fontSize:15 }}>
+              <div style={{ width:30, height:30, background:'rgba(255,255,255,0.25)', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:900, fontStyle:'italic', color:'#fff' }}>FT</div>
+              FinanceTrack
+            </div>
+            <button onClick={handleLogout} style={{ background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:12, display:'flex', alignItems:'center', gap:4, fontFamily:'inherit', fontWeight:600 }}>
+              <LogOut size={14}/> Logout
+            </button>
           </div>
-          <button
-            onClick={handleLogout}
-            style={{
-              background: 'rgba(255,255,255,0.2)',
-              border: 'none', color: '#fff',
-              borderRadius: 8, padding: '6px 12px',
-              cursor: 'pointer', fontSize: 12,
-              display: 'flex', alignItems: 'center',
-              gap: 4, fontFamily: 'inherit', fontWeight: 600,
-            }}
-          >
-            <LogOut size={14}/> Logout
-          </button>
-        </div>
+        )}
 
         {/* ── Main Content ── */}
-        <main className="content">
+        <main style={{ marginLeft: isMobile ? 0 : 240, flex:1, padding: isMobile ? '16px 12px 80px' : '28px 32px', minHeight:'100vh', background:'#f0fdf4' }}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/accounts" element={<Accounts />} />
@@ -171,37 +146,63 @@ function App() {
           </Routes>
         </main>
 
-        {/* ── Mobile Bottom Navigation ── */}
-        <nav className="mobile-nav">
-          <NavLink to="/" end>
-            <LayoutDashboard size={20}/>
-            <span className="mobile-nav-label">Home</span>
-          </NavLink>
-          <NavLink to="/accounts">
-            <Wallet size={20}/>
-            <span className="mobile-nav-label">Accounts</span>
-          </NavLink>
-          <NavLink to="/upload">
-            <UploadIcon size={20}/>
-            <span className="mobile-nav-label">Upload</span>
-          </NavLink>
-          <NavLink to="/manual">
-            <PenLine size={20}/>
-            <span className="mobile-nav-label">Manual</span>
-          </NavLink>
-          <NavLink to="/transactions">
-            <List size={20}/>
-            <span className="mobile-nav-label">History</span>
-          </NavLink>
-          <NavLink to="/budget">
-            <BookOpen size={20}/>
-            <span className="mobile-nav-label">Budget</span>
-          </NavLink>
-          <NavLink to="/settings">
-            <SettingsIcon size={20}/>
-            <span className="mobile-nav-label">Settings</span>
-          </NavLink>
-        </nav>
+        {/* ── Mobile Bottom Nav ── */}
+        {isMobile && (
+          <>
+            {/* More drawer */}
+            {showMore && (
+              <div onClick={()=>setShowMore(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.4)', zIndex:150 }}>
+                <div onClick={e=>e.stopPropagation()} style={{ position:'absolute', bottom:60, left:0, right:0, background:'#fff', borderRadius:'20px 20px 0 0', padding:'20px 16px 16px', boxShadow:'0 -8px 32px rgba(0,0,0,0.15)' }}>
+                  <div style={{ textAlign:'center', marginBottom:16, fontSize:13, fontWeight:700, color:'#134e4a' }}>More Pages</div>
+                  <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12 }}>
+                    {[
+                      ['/planning','🎯','Planning'],
+                      ['/goals','🐷','Goals'],
+                      ['/debt','💳','Debt'],
+                      ['/repay','📋','Repay'],
+                      ['/investment','📈','Investment'],
+                      ['/importexport','📂','Import'],
+                      ['/print','🖨️','Print'],
+                      ['/readme','📖','README'],
+                    ].map(([path,icon,label])=>(
+                      <NavLink key={path} to={path} onClick={()=>setShowMore(false)}
+                        style={({isActive})=>({ display:'flex', flexDirection:'column', alignItems:'center', gap:6, padding:'12px 4px', borderRadius:12, textDecoration:'none', background:isActive?'#f0fdf4':'#f9fffe', border:'1px solid #d1fae5', color:isActive?'#0d9488':'#134e4a' })}>
+                        <span style={{fontSize:24}}>{icon}</span>
+                        <span style={{fontSize:10,fontWeight:600}}>{label}</span>
+                      </NavLink>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+            <nav style={{ display:'flex', position:'fixed', bottom:0, left:0, right:0, background:'#fff', borderTop:'1px solid #d1fae5', zIndex:100, padding:'4px 0', boxShadow:'0 -4px 20px rgba(13,148,136,0.08)' }}>
+              <NavLink to="/" end style={({isActive})=>({ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'6px 2px', textDecoration:'none', color:isActive?'#0d9488':'#aaa', gap:2 })}>
+                <LayoutDashboard size={20}/><span style={{fontSize:9,fontWeight:600}}>Home</span>
+              </NavLink>
+              <NavLink to="/accounts" style={({isActive})=>({ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'6px 2px', textDecoration:'none', color:isActive?'#0d9488':'#aaa', gap:2 })}>
+                <Wallet size={20}/><span style={{fontSize:9,fontWeight:600}}>Accounts</span>
+              </NavLink>
+              <NavLink to="/upload" style={({isActive})=>({ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'6px 2px', textDecoration:'none', color:isActive?'#0d9488':'#aaa', gap:2 })}>
+                <UploadIcon size={20}/><span style={{fontSize:9,fontWeight:600}}>Upload</span>
+              </NavLink>
+              <NavLink to="/manual" style={({isActive})=>({ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'6px 2px', textDecoration:'none', color:isActive?'#0d9488':'#aaa', gap:2 })}>
+                <PenLine size={20}/><span style={{fontSize:9,fontWeight:600}}>Manual</span>
+              </NavLink>
+              <NavLink to="/transactions" style={({isActive})=>({ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'6px 2px', textDecoration:'none', color:isActive?'#0d9488':'#aaa', gap:2 })}>
+                <List size={20}/><span style={{fontSize:9,fontWeight:600}}>History</span>
+              </NavLink>
+              <NavLink to="/budget" style={({isActive})=>({ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'6px 2px', textDecoration:'none', color:isActive?'#0d9488':'#aaa', gap:2 })}>
+                <BookOpen size={20}/><span style={{fontSize:9,fontWeight:600}}>Budget</span>
+              </NavLink>
+              <NavLink to="/settings" style={({isActive})=>({ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'6px 2px', textDecoration:'none', color:isActive?'#0d9488':'#aaa', gap:2 })}>
+                <SettingsIcon size={20}/><span style={{fontSize:9,fontWeight:600}}>Settings</span>
+              </NavLink>
+              <button onClick={()=>setShowMore(p=>!p)} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'6px 2px', background:'none', border:'none', cursor:'pointer', color:showMore?'#0d9488':'#aaa', gap:2 }}>
+                <MoreHorizontal size={20}/><span style={{fontSize:9,fontWeight:600}}>More</span>
+              </button>
+            </nav>
+          </>
+        )}
 
       </div>
     </Router>

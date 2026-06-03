@@ -321,7 +321,7 @@ tr:last-child td { border-bottom: none; }
    MOBILE
 ============================================================ */
 @media (max-width: 900px) {
-  .sidebar { display: none; }
+  .sidebar { display: none !important; }
   .content { margin-left: 0; padding: 16px 12px 80px; }
 
   .mobile-header {
