@@ -61,6 +61,7 @@ const BUDGET_GROUPS = [
     'เงินออมและการลงทุน : เงินฉุกเฉิน',
     'เงินออมและการลงทุน : การลงทุน',
   ]},
+  { group: 'ค่าใช้จ่ายอื่น ๆ', color: '#94a3b8', categories: ['ค่าใช้จ่ายอื่น ๆ'] },
 ];
 
 // ── Donut center label ─────────────────────────────────────────
@@ -103,10 +104,10 @@ function Dashboard() {
   const [initialBalances, setInitialBalances] = useState({});
 
   useEffect(() => {
-    setTransactions(getAll());
+    const txs = getAll();
+    setTransactions(txs);
     setInitialBalances(JSON.parse(localStorage.getItem('initialBalances') || '{}'));
-    const now = new Date();
-    setSelectedMonth(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`);
+    // Default to All Time (empty string)
   }, []);
 
   const months = [...new Set(transactions.map(tx => {
@@ -300,13 +301,22 @@ function Dashboard() {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {transactions.length === 0 ? (
         <div style={{ background: '#fff', borderRadius: 16, padding: 64,
           textAlign: 'center', color: C.sub,
           boxShadow: '0 1px 8px rgba(13,148,136,0.08)' }}>
           <div style={{ fontSize: 56 }}>📊</div>
           <p style={{ marginTop: 16, fontSize: 15 }}>
-            No data for this period.<br />Upload some slips to see your dashboard!
+            No data yet.<br />Upload some slips to see your dashboard!
+          </p>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div style={{ background: '#fff', borderRadius: 16, padding: 64,
+          textAlign: 'center', color: C.sub,
+          boxShadow: '0 1px 8px rgba(13,148,136,0.08)' }}>
+          <div style={{ fontSize: 56 }}>📅</div>
+          <p style={{ marginTop: 16, fontSize: 15 }}>
+            No data for this period.<br />Try selecting a different month.
           </p>
         </div>
       ) : (

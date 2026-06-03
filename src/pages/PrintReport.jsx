@@ -7,10 +7,11 @@ const inp = { width:'100%', padding:'9px 12px', borderRadius:8, border:`1.5px so
 const lbl = { fontSize:11, fontWeight:700, color:'#6b7280', textTransform:'uppercase', letterSpacing:.5, display:'block', marginBottom:5 };
 const thS = { padding:'8px 10px', background:C.muted, borderBottom:`2px solid ${C.border}`, fontWeight:700, color:C.sub, fontSize:12 };
 const tdS = { padding:'7px 10px', borderBottom:`1px solid ${C.muted}`, fontSize:12 };
+const pageBreak = { pageBreakBefore:'always', paddingTop:16 };
 
 export default function PrintReport() {
   const [transactions,setTransactions]=useState([]);
-  const [selectedMonth,setSelectedMonth]=useState('');
+  const [selectedMonth,setSelectedMonth]=useState('');  // default All Time
   const [reportType,setReportType]=useState('monthly');
   const [debts,setDebts]=useState([]);
   const [repayItems,setRepayItems]=useState([]);
@@ -21,7 +22,7 @@ export default function PrintReport() {
     setDebts(JSON.parse(localStorage.getItem('debts')||'[]'));
     setRepayItems(JSON.parse(localStorage.getItem('repayItems')||'[]'));
     setInvestments(JSON.parse(localStorage.getItem('investments')||'[]'));
-    const now=new Date(); setSelectedMonth(`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`);
+    // Default to All Time — no setSelectedMonth here
   },[]);
 
   const months=[...new Set(transactions.map(tx=>{if(!tx.DATE) return null; const p=tx.DATE.split('/'); return p.length===3?`${p[2]}-${p[1]}`:null;}).filter(Boolean))].sort().reverse();
@@ -39,7 +40,7 @@ export default function PrintReport() {
   const getRepaid=(id)=>Number(repayItems.find(r=>r.txId===id)?.repaidAmount||0);
   const totInv=investments.reduce((s,i)=>s+(Number(i.amount)||0),0);
   const totCur=investments.reduce((s,i)=>s+(Number(i.currentValue)||Number(i.amount)||0),0);
-  const totPnL=totCur-totInv; const totPnLPct=totInv>0?(totPnL/totInv)*100:0;
+  const totPnL=totCur-totInv;
   const monthLabel=selectedMonth?(()=>{const [y,m]=selectedMonth.split('-');const mn=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return `${mn[parseInt(m)]} ${y}`;})():'All Time';
   const REPORT_TYPES=[{v:'monthly',l:'📊 Monthly Summary'},{v:'detailed',l:'📋 Detailed Transactions'},{v:'category',l:'📂 Category Breakdown'},{v:'debt',l:'💳 Debt Report'},{v:'repay',l:'📋 Repay Report'},{v:'investment',l:'📈 Investment Report'},{v:'full',l:'📑 Full Report'}];
   const show=(s)=>reportType===s||reportType==='full'||(reportType==='monthly'&&['summary','category','account'].includes(s));
@@ -88,9 +89,10 @@ export default function PrintReport() {
           </div>
         )}
 
-        {(show('category')||reportType==='category')&&catData.length>0&&(
+        {(show('category')||reportType==='category')&&(
           <div style={{marginBottom:28}}>
             <h3 style={{fontSize:15,fontWeight:700,marginBottom:12,borderBottom:`1px solid ${C.border}`,paddingBottom:8,color:C.text}}>📂 Expense by Category</h3>
+            {catData.length===0 ? <p style={{color:C.sub,padding:'12px 0'}}>No expense data for this period.</p> :
             <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
               <thead><tr>{['#','Category','Amount','% of Total'].map((h,i)=><th key={h} style={{...thS,textAlign:i>=2?'right':'left'}}>{h}</th>)}</tr></thead>
               <tbody>
@@ -102,12 +104,12 @@ export default function PrintReport() {
                 ))}
                 <tr style={{background:C.muted,fontWeight:700,borderTop:`2px solid ${C.border}`}}><td colSpan={2} style={tdS}>Total</td><td style={{...tdS,textAlign:'right'}}>฿{totalExpense.toLocaleString()}</td><td style={{...tdS,textAlign:'right'}}>100%</td></tr>
               </tbody>
-            </table>
+            </table>}
           </div>
         )}
 
         {(reportType==='detailed'||reportType==='full')&&(
-          <div style={{marginBottom:28}}>
+          <div className='page-break' style={{marginBottom:28}}>
             <h3 style={{fontSize:15,fontWeight:700,marginBottom:12,borderBottom:`1px solid ${C.border}`,paddingBottom:8,color:C.text}}>📋 Transactions ({filtered.length})</h3>
             <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
               <thead><tr>{['Date','Description','Account','Category','Income','Expense','Transfer'].map((h,i)=><th key={h} style={{...thS,textAlign:i>=4?'right':'left'}}>{h}</th>)}</tr></thead>
@@ -124,6 +126,93 @@ export default function PrintReport() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Debt Report */}
+        {(reportType==='debt'||reportType==='full')&&(
+          <div className='page-break' style={{marginBottom:28}}>
+            <h3 style={{fontSize:15,fontWeight:700,marginBottom:12,borderBottom:`1px solid ${C.border}`,paddingBottom:8,color:C.text}}>💳 Debt Report</h3>
+            {debts.length===0 ? <p style={{color:C.sub,padding:'12px 0'}}>No debt records.</p> :
+            <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+              <thead><tr>{['Creditor','Total','Paid','Remaining','Status'].map((h,i)=><th key={h} style={{...thS,textAlign:i>=1?'right':'left'}}>{h}</th>)}</tr></thead>
+              <tbody>
+                {debts.map((d,i)=>{
+                  const remaining=Number(d.total||0)-Number(d.paid||0);
+                  return <tr key={i}>
+                    <td style={tdS}>{d.creditor||d.name||'-'}</td>
+                    <td style={{...tdS,textAlign:'right'}}>฿{Number(d.total||0).toLocaleString()}</td>
+                    <td style={{...tdS,textAlign:'right',color:'#16a34a'}}>฿{Number(d.paid||0).toLocaleString()}</td>
+                    <td style={{...tdS,textAlign:'right',color:'#ef4444'}}>฿{remaining.toLocaleString()}</td>
+                    <td style={{...tdS,textAlign:'right'}}><span style={{background:remaining<=0?'#dcfce7':'#fee2e2',color:remaining<=0?'#16a34a':'#ef4444',padding:'2px 8px',borderRadius:20,fontSize:11,fontWeight:700}}>{remaining<=0?'Paid':'Pending'}</span></td>
+                  </tr>;
+                })}
+                <tr style={{background:C.muted,fontWeight:700}}><td style={tdS}>Total</td>
+                  <td style={{...tdS,textAlign:'right'}}>฿{debts.reduce((s,d)=>s+Number(d.total||0),0).toLocaleString()}</td>
+                  <td style={{...tdS,textAlign:'right',color:'#16a34a'}}>฿{debts.reduce((s,d)=>s+Number(d.paid||0),0).toLocaleString()}</td>
+                  <td style={{...tdS,textAlign:'right',color:'#ef4444'}}>฿{debts.reduce((s,d)=>s+Number(d.total||0)-Number(d.paid||0),0).toLocaleString()}</td>
+                  <td style={tdS}></td>
+                </tr>
+              </tbody>
+            </table>}
+          </div>
+        )}
+
+        {/* Repay Report */}
+        {(reportType==='repay'||reportType==='full')&&(
+          <div className='page-break' style={{marginBottom:28}}>
+            <h3 style={{fontSize:15,fontWeight:700,marginBottom:12,borderBottom:`1px solid ${C.border}`,paddingBottom:8,color:C.text}}>📋 Repay Report</h3>
+            {transactions.filter(tx=>tx.REPAY===true||tx.REPAY==='true').length===0
+              ? <p style={{color:C.sub}}>No repayable transactions.</p>
+              : <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+                  <thead><tr>{['Date','Description','Account','Amount','Repaid','Remaining'].map((h,i)=><th key={h} style={{...thS,textAlign:i>=3?'right':'left'}}>{h}</th>)}</tr></thead>
+                  <tbody>
+                    {transactions.filter(tx=>tx.REPAY===true||tx.REPAY==='true').map((tx,i)=>{
+                      const amt=Number(tx.EXPENSE)||Number(tx.INCOME)||0;
+                      const repaid=Number(repayItems.find(r=>r.txId===tx.UID)?.repaidAmount||0);
+                      return <tr key={i}>
+                        <td style={{...tdS,whiteSpace:'nowrap'}}>{tx.DATE}</td>
+                        <td style={tdS}>{tx.DESCRIPTION}</td>
+                        <td style={tdS}>{tx.ACCOUNT}</td>
+                        <td style={{...tdS,textAlign:'right'}}>฿{amt.toLocaleString()}</td>
+                        <td style={{...tdS,textAlign:'right',color:'#16a34a'}}>฿{repaid.toLocaleString()}</td>
+                        <td style={{...tdS,textAlign:'right',color:'#ef4444'}}>฿{(amt-repaid).toLocaleString()}</td>
+                      </tr>;
+                    })}
+                  </tbody>
+                </table>
+            }
+          </div>
+        )}
+
+        {/* Investment Report */}
+        {(reportType==='investment'||reportType==='full')&&(
+          <div className='page-break' style={{marginBottom:28}}>
+            <h3 style={{fontSize:15,fontWeight:700,marginBottom:12,borderBottom:`1px solid ${C.border}`,paddingBottom:8,color:C.text}}>📈 Investment Report</h3>
+            {investments.length===0 ? <p style={{color:C.sub,padding:'12px 0'}}>No investment records.</p> :
+            <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+              <thead><tr>{['Asset','Invested','Current Value','P&L','Return'].map((h,i)=><th key={h} style={{...thS,textAlign:i>=1?'right':'left'}}>{h}</th>)}</tr></thead>
+              <tbody>
+                {investments.map((inv,i)=>{
+                  const pnl=(Number(inv.currentValue)||Number(inv.amount)||0)-Number(inv.amount||0);
+                  const pct=Number(inv.amount)>0?(pnl/Number(inv.amount)*100).toFixed(1):0;
+                  return <tr key={i}>
+                    <td style={tdS}>{inv.name||inv.asset||'-'}</td>
+                    <td style={{...tdS,textAlign:'right'}}>฿{Number(inv.amount||0).toLocaleString()}</td>
+                    <td style={{...tdS,textAlign:'right'}}>฿{Number(inv.currentValue||inv.amount||0).toLocaleString()}</td>
+                    <td style={{...tdS,textAlign:'right',color:pnl>=0?'#16a34a':'#ef4444',fontWeight:600}}>฿{pnl.toLocaleString()}</td>
+                    <td style={{...tdS,textAlign:'right',color:pnl>=0?'#16a34a':'#ef4444'}}>{pct}%</td>
+                  </tr>;
+                })}
+                <tr style={{background:C.muted,fontWeight:700}}>
+                  <td style={tdS}>Total</td>
+                  <td style={{...tdS,textAlign:'right'}}>฿{investments.reduce((s,i)=>s+Number(i.amount||0),0).toLocaleString()}</td>
+                  <td style={{...tdS,textAlign:'right'}}>฿{investments.reduce((s,i)=>s+Number(i.currentValue||i.amount||0),0).toLocaleString()}</td>
+                  <td style={{...tdS,textAlign:'right',color:totPnL>=0?'#16a34a':'#ef4444',fontWeight:700}}>฿{totPnL.toLocaleString()}</td>
+                  <td style={tdS}></td>
+                </tr>
+              </tbody>
+            </table>}
           </div>
         )}
 

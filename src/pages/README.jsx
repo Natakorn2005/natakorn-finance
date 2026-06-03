@@ -2,12 +2,6 @@ import React from 'react';
 const C = { teal:'#0d9488', muted:'#f0fdf4', border:'#d1fae5', text:'#134e4a', sub:'#6b7280' };
 const card = { background:'#fff', borderRadius:16, padding:'20px 24px', boxShadow:'0 1px 8px rgba(13,148,136,0.08)', marginBottom:24 };
 
-function FTLogo({ size=64 }) {
-  return (
-    <div style={{width:size,height:size,background:'linear-gradient(135deg,#0d9488,#4ade80)',borderRadius:size*.25,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:800,fontSize:size*.34,color:'#fff',letterSpacing:1,flexShrink:0}}>FT</div>
-  );
-}
-
 export default function README() {
   const pages=[
     {icon:'📊',name:'Dashboard',path:'/',desc:'Overview of income, expense, net balance, account balances, spending charts, and budget vs actual.',tips:['Select month to filter','Click account cards → Accounts page','Budget vs Actual appears when budgets set']},
@@ -35,7 +29,7 @@ export default function README() {
       {/* App overview */}
       <div style={card}>
         <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:20}}>
-          <FTLogo size={64}/>
+          <img src="/favicon.svg" alt="FinanceTrack" style={{width:64,height:64,borderRadius:16,flexShrink:0,boxShadow:'0 4px 12px rgba(13,148,136,0.2)'}}/>
           <div>
             <h2 style={{fontSize:22,fontWeight:800,margin:0,color:C.text}}>FinanceTrack</h2>
             <p style={{color:C.sub,margin:'4px 0 0',fontSize:14}}>Personal Finance Manager — v2.0.0</p>

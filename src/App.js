@@ -63,9 +63,11 @@ function App() {
         {!isMobile && (
           <nav className="sidebar">
             <div className="logo">
-              <div className="logo-icon">FT</div>
+              <img src="/favicon-white.svg" alt="FT" style={{width:36,height:36,borderRadius:10,flexShrink:0}} />
               <div className="logo-text">
-                <span>FinanceTrack</span>
+                <span style={{fontFamily:"'Libre Baskerville', Georgia, serif", letterSpacing:0}}>
+                  Finance<em style={{fontStyle:'italic', fontWeight:800, fontFamily:'Inter,sans-serif'}}>Track</em>
+                </span>
                 <span>Personal Finance</span>
               </div>
             </div>
@@ -115,8 +117,8 @@ function App() {
         {isMobile && (
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', background:'linear-gradient(90deg,#0d9488,#16a34a)', padding:'12px 16px', position:'sticky', top:0, zIndex:99, color:'#fff' }}>
             <div style={{ display:'flex', alignItems:'center', gap:8, fontWeight:800, fontSize:15 }}>
-              <div style={{ width:30, height:30, background:'rgba(255,255,255,0.25)', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:900, fontStyle:'italic', color:'#fff' }}>FT</div>
-              FinanceTrack
+              <img src="/favicon.svg" alt="FT" style={{width:30,height:30,borderRadius:8,flexShrink:0}} />
+              <span style={{fontFamily:"'Libre Baskerville',Georgia,serif"}}>Finance<em style={{fontStyle:'italic',fontWeight:800,fontFamily:"Inter,sans-serif"}}>Track</em></span>
             </div>
             <button onClick={handleLogout} style={{ background:'rgba(255,255,255,0.2)', border:'none', color:'#fff', borderRadius:8, padding:'6px 12px', cursor:'pointer', fontSize:12, display:'flex', alignItems:'center', gap:4, fontFamily:'inherit', fontWeight:600 }}>
               <LogOut size={14}/> Logout

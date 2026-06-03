@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+const ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="192" zoomAndPan="magnify" viewBox="0 0 144 143.999998" height="192" preserveAspectRatio="xMidYMid meet" version="1.0"><defs><g/><clipPath id="a373b6c54a"><path d="M 30 0 L 114 0 C 121.957031 0 129.585938 3.160156 135.214844 8.785156 C 140.839844 14.414062 144 22.042969 144 30 L 144 114 C 144 121.957031 140.839844 129.585938 135.214844 135.214844 C 129.585938 140.839844 121.957031 144 114 144 L 30 144 C 22.042969 144 14.414062 140.839844 8.785156 135.214844 C 3.160156 129.585938 0 121.957031 0 114 L 0 30 C 0 22.042969 3.160156 14.414062 8.785156 8.785156 C 14.414062 3.160156 22.042969 0 30 0 Z M 30 0 " clip-rule="nonzero"/></clipPath><clipPath id="5bde3713bb"><path d="M 0 0 L 144 0 L 144 144 L 0 144 Z M 0 0 " clip-rule="nonzero"/></clipPath><clipPath id="4eeca05064"><path d="M 30 0 L 114 0 C 121.957031 0 129.585938 3.160156 135.214844 8.785156 C 140.839844 14.414062 144 22.042969 144 30 L 144 114 C 144 121.957031 140.839844 129.585938 135.214844 135.214844 C 129.585938 140.839844 121.957031 144 114 144 L 30 144 C 22.042969 144 14.414062 140.839844 8.785156 135.214844 C 3.160156 129.585938 0 121.957031 0 114 L 0 30 C 0 22.042969 3.160156 14.414062 8.785156 8.785156 C 14.414062 3.160156 22.042969 0 30 0 Z M 30 0 " clip-rule="nonzero"/></clipPath><linearGradient x1="0" gradientTransform="matrix(0.5625, 0, 0, 0.5625, 0.00000125, 0.000002)" y1="128" x2="256" gradientUnits="userSpaceOnUse" y2="128" id="242b9323b9"><stop stop-opacity="1" stop-color="rgb(0%, 59.21936%, 69.799805%)" offset="0"/><stop stop-opacity="1" stop-color="rgb(0.192261%, 59.320068%, 69.659424%)" offset="0.0078125"/><stop stop-opacity="1" stop-color="rgb(0.576782%, 59.521484%, 69.380188%)" offset="0.015625"/><stop stop-opacity="1" stop-color="rgb(0.96283%, 59.724426%, 69.102478%)" offset="0.0234375"/><stop stop-opacity="1" stop-color="rgb(1.348877%, 59.925842%, 68.823242%)" offset="0.03125"/><stop stop-opacity="1" stop-color="rgb(1.734924%, 60.128784%, 68.544006%)" offset="0.0390625"/><stop stop-opacity="1" stop-color="rgb(2.120972%, 60.3302%, 68.266296%)" offset="0.046875"/><stop stop-opacity="1" stop-color="rgb(2.507019%, 60.533142%, 67.987061%)" offset="0.0546875"/><stop stop-opacity="1" stop-color="rgb(2.893066%, 60.734558%, 67.707825%)" offset="0.0625"/><stop stop-opacity="1" stop-color="rgb(3.279114%, 60.9375%, 67.428589%)" offset="0.0703125"/><stop stop-opacity="1" stop-color="rgb(3.665161%, 61.138916%, 67.150879%)" offset="0.078125"/><stop stop-opacity="1" stop-color="rgb(4.051208%, 61.341858%, 66.871643%)" offset="0.0859375"/><stop stop-opacity="1" stop-color="rgb(4.437256%, 61.543274%, 66.592407%)" offset="0.09375"/><stop stop-opacity="1" stop-color="rgb(4.823303%, 61.746216%, 66.314697%)" offset="0.101562"/><stop stop-opacity="1" stop-color="rgb(5.209351%, 61.947632%, 66.035461%)" offset="0.109375"/><stop stop-opacity="1" stop-color="rgb(5.595398%, 62.150574%, 65.756226%)" offset="0.117188"/><stop stop-opacity="1" stop-color="rgb(5.981445%, 62.353516%, 65.478516%)" offset="0.125"/><stop stop-opacity="1" stop-color="rgb(6.367493%, 62.554932%, 65.19928%)" offset="0.132812"/><stop stop-opacity="1" stop-color="rgb(6.75354%, 62.757874%, 64.920044%)" offset="0.140625"/><stop stop-opacity="1" stop-color="rgb(7.139587%, 62.95929%, 64.642334%)" offset="0.148438"/><stop stop-opacity="1" stop-color="rgb(7.525635%, 63.162231%, 64.363098%)" offset="0.15625"/><stop stop-opacity="1" stop-color="rgb(7.911682%, 63.363647%, 64.083862%)" offset="0.164062"/><stop stop-opacity="1" stop-color="rgb(8.297729%, 63.566589%, 63.806152%)" offset="0.171875"/><stop stop-opacity="1" stop-color="rgb(8.683777%, 63.768005%, 63.526917%)" offset="0.179688"/><stop stop-opacity="1" stop-color="rgb(9.069824%, 63.970947%, 63.247681%)" offset="0.1875"/><stop stop-opacity="1" stop-color="rgb(9.455872%, 64.172363%, 62.969971%)" offset="0.195312"/><stop stop-opacity="1" stop-color="rgb(9.841919%, 64.375305%, 62.690735%)" offset="0.203125"/><stop stop-opacity="1" stop-color="rgb(10.227966%, 64.576721%, 62.411499%)" offset="0.210938"/><stop stop-opacity="1" stop-color="rgb(10.614014%, 64.779663%, 62.133789%)" offset="0.21875"/><stop stop-opacity="1" stop-color="rgb(11.000061%, 64.981079%, 61.854553%)" offset="0.226562"/><stop stop-opacity="1" stop-color="rgb(11.386108%, 65.184021%, 61.575317%)" offset="0.234375"/><stop stop-opacity="1" stop-color="rgb(11.772156%, 65.385437%, 61.296082%)" offset="0.242188"/><stop stop-opacity="1" stop-color="rgb(12.158203%, 65.588379%, 61.018372%)" offset="0.25"/><stop stop-opacity="1" stop-color="rgb(12.54425%, 65.789795%, 60.739136%)" offset="0.257812"/><stop stop-opacity="1" stop-color="rgb(12.930298%, 65.992737%, 60.4599%)" offset="0.265625"/><stop stop-opacity="1" stop-color="rgb(13.316345%, 66.194153%, 60.18219%)" offset="0.273438"/><stop stop-opacity="1" stop-color="rgb(13.702393%, 66.397095%, 59.902954%)" offset="0.28125"/><stop stop-opacity="1" stop-color="rgb(14.08844%, 66.598511%, 59.623718%)" offset="0.289062"/><stop stop-opacity="1" stop-color="rgb(14.474487%, 66.801453%, 59.346008%)" offset="0.296875"/><stop stop-opacity="1" stop-color="rgb(14.860535%, 67.002869%, 59.066772%)" offset="0.304688"/><stop stop-opacity="1" stop-color="rgb(15.246582%, 67.205811%, 58.787537%)" offset="0.3125"/><stop stop-opacity="1" stop-color="rgb(15.632629%, 67.407227%, 58.509827%)" offset="0.320312"/><stop stop-opacity="1" stop-color="rgb(16.018677%, 67.610168%, 58.230591%)" offset="0.328125"/><stop stop-opacity="1" stop-color="rgb(16.404724%, 67.811584%, 57.951355%)" offset="0.335938"/><stop stop-opacity="1" stop-color="rgb(16.790771%, 68.014526%, 57.673645%)" offset="0.34375"/><stop stop-opacity="1" stop-color="rgb(17.176819%, 68.215942%, 57.394409%)" offset="0.351562"/><stop stop-opacity="1" stop-color="rgb(17.562866%, 68.418884%, 57.115173%)" offset="0.359375"/><stop stop-opacity="1" stop-color="rgb(17.948914%, 68.6203%, 56.837463%)" offset="0.367188"/><stop stop-opacity="1" stop-color="rgb(18.334961%, 68.823242%, 56.558228%)" offset="0.375"/><stop stop-opacity="1" stop-color="rgb(18.721008%, 69.024658%, 56.278992%)" offset="0.382812"/><stop stop-opacity="1" stop-color="rgb(19.10553%, 69.2276%, 56.001282%)" offset="0.390625"/><stop stop-opacity="1" stop-color="rgb(19.491577%, 69.429016%, 55.722046%)" offset="0.398438"/><stop stop-opacity="1" stop-color="rgb(19.877625%, 69.631958%, 55.44281%)" offset="0.40625"/><stop stop-opacity="1" stop-color="rgb(20.263672%, 69.833374%, 55.1651%)" offset="0.414062"/><stop stop-opacity="1" stop-color="rgb(20.649719%, 70.036316%, 54.885864%)" offset="0.421875"/><stop stop-opacity="1" stop-color="rgb(21.035767%, 70.237732%, 54.606628%)" offset="0.429688"/><stop stop-opacity="1" stop-color="rgb(21.421814%, 70.440674%, 54.327393%)" offset="0.4375"/><stop stop-opacity="1" stop-color="rgb(21.807861%, 70.64209%, 54.049683%)" offset="0.445312"/><stop stop-opacity="1" stop-color="rgb(22.193909%, 70.845032%, 53.770447%)" offset="0.453125"/><stop stop-opacity="1" stop-color="rgb(22.579956%, 71.046448%, 53.491211%)" offset="0.460938"/><stop stop-opacity="1" stop-color="rgb(22.966003%, 71.24939%, 53.213501%)" offset="0.46875"/><stop stop-opacity="1" stop-color="rgb(23.352051%, 71.450806%, 52.934265%)" offset="0.476562"/><stop stop-opacity="1" stop-color="rgb(23.738098%, 71.653748%, 52.655029%)" offset="0.484375"/><stop stop-opacity="1" stop-color="rgb(24.124146%, 71.855164%, 52.377319%)" offset="0.492188"/><stop stop-opacity="1" stop-color="rgb(24.510193%, 72.058105%, 52.098083%)" offset="0.5"/><stop stop-opacity="1" stop-color="rgb(24.89624%, 72.259521%, 51.818848%)" offset="0.507812"/><stop stop-opacity="1" stop-color="rgb(25.282288%, 72.462463%, 51.541138%)" offset="0.515625"/><stop stop-opacity="1" stop-color="rgb(25.668335%, 72.663879%, 51.261902%)" offset="0.523438"/><stop stop-opacity="1" stop-color="rgb(26.054382%, 72.866821%, 50.982666%)" offset="0.53125"/><stop stop-opacity="1" stop-color="rgb(26.44043%, 73.068237%, 50.704956%)" offset="0.539062"/><stop stop-opacity="1" stop-color="rgb(26.826477%, 73.271179%, 50.42572%)" offset="0.546875"/><stop stop-opacity="1" stop-color="rgb(27.212524%, 73.472595%, 50.146484%)" offset="0.554688"/><stop stop-opacity="1" stop-color="rgb(27.598572%, 73.675537%, 49.868774%)" offset="0.5625"/><stop stop-opacity="1" stop-color="rgb(27.984619%, 73.876953%, 49.589539%)" offset="0.570312"/><stop stop-opacity="1" stop-color="rgb(28.370667%, 74.079895%, 49.310303%)" offset="0.578125"/><stop stop-opacity="1" stop-color="rgb(28.756714%, 74.281311%, 49.032593%)" offset="0.585938"/><stop stop-opacity="1" stop-color="rgb(29.142761%, 74.484253%, 48.753357%)" offset="0.59375"/><stop stop-opacity="1" stop-color="rgb(29.528809%, 74.685669%, 48.474121%)" offset="0.601562"/><stop stop-opacity="1" stop-color="rgb(29.914856%, 74.888611%, 48.194885%)" offset="0.609375"/><stop stop-opacity="1" stop-color="rgb(30.300903%, 75.090027%, 47.917175%)" offset="0.617188"/><stop stop-opacity="1" stop-color="rgb(30.686951%, 75.292969%, 47.637939%)" offset="0.625"/><stop stop-opacity="1" stop-color="rgb(31.072998%, 75.494385%, 47.358704%)" offset="0.632812"/><stop stop-opacity="1" stop-color="rgb(31.459045%, 75.697327%, 47.080994%)" offset="0.640625"/><stop stop-opacity="1" stop-color="rgb(31.845093%, 75.898743%, 46.801758%)" offset="0.648438"/><stop stop-opacity="1" stop-color="rgb(32.23114%, 76.101685%, 46.522522%)" offset="0.65625"/><stop stop-opacity="1" stop-color="rgb(32.617188%, 76.303101%, 46.244812%)" offset="0.664062"/><stop stop-opacity="1" stop-color="rgb(33.003235%, 76.506042%, 45.965576%)" offset="0.671875"/><stop stop-opacity="1" stop-color="rgb(33.389282%, 76.707458%, 45.68634%)" offset="0.679688"/><stop stop-opacity="1" stop-color="rgb(33.77533%, 76.9104%, 45.40863%)" offset="0.6875"/><stop stop-opacity="1" stop-color="rgb(34.161377%, 77.111816%, 45.129395%)" offset="0.695312"/><stop stop-opacity="1" stop-color="rgb(34.547424%, 77.314758%, 44.850159%)" offset="0.703125"/><stop stop-opacity="1" stop-color="rgb(34.933472%, 77.516174%, 44.572449%)" offset="0.710938"/><stop stop-opacity="1" stop-color="rgb(35.319519%, 77.719116%, 44.293213%)" offset="0.71875"/><stop stop-opacity="1" stop-color="rgb(35.705566%, 77.920532%, 44.013977%)" offset="0.726562"/><stop stop-opacity="1" stop-color="rgb(36.091614%, 78.123474%, 43.736267%)" offset="0.734375"/><stop stop-opacity="1" stop-color="rgb(36.477661%, 78.32489%, 43.457031%)" offset="0.742188"/><stop stop-opacity="1" stop-color="rgb(36.863708%, 78.527832%, 43.177795%)" offset="0.75"/><stop stop-opacity="1" stop-color="rgb(37.249756%, 78.729248%, 42.900085%)" offset="0.757812"/><stop stop-opacity="1" stop-color="rgb(37.634277%, 78.93219%, 42.62085%)" offset="0.765625"/><stop stop-opacity="1" stop-color="rgb(38.020325%, 79.133606%, 42.341614%)" offset="0.773438"/><stop stop-opacity="1" stop-color="rgb(38.406372%, 79.336548%, 42.062378%)" offset="0.78125"/><stop stop-opacity="1" stop-color="rgb(38.792419%, 79.537964%, 41.784668%)" offset="0.789062"/><stop stop-opacity="1" stop-color="rgb(39.178467%, 79.740906%, 41.505432%)" offset="0.796875"/><stop stop-opacity="1" stop-color="rgb(39.564514%, 79.942322%, 41.226196%)" offset="0.804688"/><stop stop-opacity="1" stop-color="rgb(39.950562%, 80.145264%, 40.948486%)" offset="0.8125"/><stop stop-opacity="1" stop-color="rgb(40.336609%, 80.348206%, 40.66925%)" offset="0.820312"/><stop stop-opacity="1" stop-color="rgb(40.722656%, 80.549622%, 40.390015%)" offset="0.828125"/><stop stop-opacity="1" stop-color="rgb(41.108704%, 80.752563%, 40.112305%)" offset="0.835938"/><stop stop-opacity="1" stop-color="rgb(41.494751%, 80.953979%, 39.833069%)" offset="0.84375"/><stop stop-opacity="1" stop-color="rgb(41.880798%, 81.156921%, 39.553833%)" offset="0.851562"/><stop stop-opacity="1" stop-color="rgb(42.266846%, 81.358337%, 39.276123%)" offset="0.859375"/><stop stop-opacity="1" stop-color="rgb(42.652893%, 81.561279%, 38.996887%)" offset="0.867188"/><stop stop-opacity="1" stop-color="rgb(43.03894%, 81.762695%, 38.717651%)" offset="0.875"/><stop stop-opacity="1" stop-color="rgb(43.424988%, 81.965637%, 38.439941%)" offset="0.882812"/><stop stop-opacity="1" stop-color="rgb(43.811035%, 82.167053%, 38.160706%)" offset="0.890625"/><stop stop-opacity="1" stop-color="rgb(44.197083%, 82.369995%, 37.88147%)" offset="0.898438"/><stop stop-opacity="1" stop-color="rgb(44.58313%, 82.571411%, 37.60376%)" offset="0.90625"/><stop stop-opacity="1" stop-color="rgb(44.969177%, 82.774353%, 37.324524%)" offset="0.914062"/><stop stop-opacity="1" stop-color="rgb(45.355225%, 82.975769%, 37.045288%)" offset="0.921875"/><stop stop-opacity="1" stop-color="rgb(45.741272%, 83.178711%, 36.767578%)" offset="0.929688"/><stop stop-opacity="1" stop-color="rgb(46.127319%, 83.380127%, 36.488342%)" offset="0.9375"/><stop stop-opacity="1" stop-color="rgb(46.513367%, 83.583069%, 36.209106%)" offset="0.945312"/><stop stop-opacity="1" stop-color="rgb(46.899414%, 83.784485%, 35.929871%)" offset="0.953125"/><stop stop-opacity="1" stop-color="rgb(47.285461%, 83.987427%, 35.652161%)" offset="0.960938"/><stop stop-opacity="1" stop-color="rgb(47.671509%, 84.188843%, 35.372925%)" offset="0.96875"/><stop stop-opacity="1" stop-color="rgb(48.057556%, 84.391785%, 35.093689%)" offset="0.976562"/><stop stop-opacity="1" stop-color="rgb(48.443604%, 84.593201%, 34.815979%)" offset="0.984375"/><stop stop-opacity="1" stop-color="rgb(48.829651%, 84.796143%, 34.536743%)" offset="0.992188"/><stop stop-opacity="1" stop-color="rgb(49.215698%, 84.997559%, 34.257507%)" offset="1"/></linearGradient><clipPath id="c7af8bd926"><rect x="0" width="144" y="0" height="144"/></clipPath><clipPath id="46147c90a7"><path d="M 42 33 L 90.839844 33 L 90.839844 92 L 42 92 Z M 42 33 " clip-rule="nonzero"/></clipPath><clipPath id="cf7d91b47c"><rect x="0" width="91" y="0" height="118"/></clipPath></defs><g clip-path="url(#a373b6c54a)"><g transform="matrix(1, 0, 0, 1, 0, -0.000000000000008916)"><g clip-path="url(#c7af8bd926)"><g clip-path="url(#5bde3713bb)"><g clip-path="url(#4eeca05064)"><rect x="-31.68" fill="url(#242b9323b9)" width="207.36" height="207.359996" y="-31.679999"/></g></g></g></g></g><g transform="matrix(1, 0, 0, 1, 27, 22)"><g clip-path="url(#cf7d91b47c)"><g fill="#ffffff" fill-opacity="1"><g transform="translate(4.665303, 67.384887)"><g><path d="M 19.5625 -9.015625 C 19.5625 -4.210938 21.441406 -1.8125 25.203125 -1.8125 L 24.921875 0 L -2.484375 0 L -2.234375 -1.8125 C -0.0234375 -1.8125 1.800781 -2.445312 3.25 -3.71875 C 4.695312 -5 5.609375 -6.765625 5.984375 -9.015625 L 13.0625 -48.828125 C 13.0625 -53.597656 11.179688 -55.984375 7.421875 -55.984375 L 7.71875 -57.84375 L 55.609375 -57.84375 L 52.484375 -40.21875 L 50.765625 -40.21875 C 50.722656 -41.113281 50.648438 -42.394531 50.546875 -44.0625 C 50.441406 -45.726562 50.0625 -47.351562 49.40625 -48.9375 C 48.757812 -50.519531 47.570312 -51.894531 45.84375 -53.0625 C 44.113281 -54.226562 41.707031 -54.851562 38.625 -54.9375 L 31.328125 -55.09375 C 29.753906 -55.09375 28.71875 -54.804688 28.21875 -54.234375 C 27.71875 -53.660156 27.273438 -52.25 26.890625 -50 L 23.359375 -30.6875 C 26.773438 -30.851562 29.335938 -31.234375 31.046875 -31.828125 C 32.765625 -32.429688 34.226562 -33.566406 35.4375 -35.234375 C 36.644531 -36.898438 38.015625 -39.5625 39.546875 -43.21875 L 41.359375 -43.21875 L 36.421875 -15.015625 L 34.578125 -15.015625 C 34.296875 -18.796875 33.863281 -21.503906 33.28125 -23.140625 C 32.695312 -24.773438 31.65625 -25.894531 30.15625 -26.5 C 28.664062 -27.101562 26.226562 -27.488281 22.84375 -27.65625 Z M 19.5625 -9.015625 "/></g></g></g><g clip-path="url(#46147c90a7)"><g fill="#ffffff" fill-opacity="1"><g transform="translate(32.657753, 91.87913)"><g><path d="M 57.484375 -58.484375 L 55.640625 -47.953125 L 39.34375 -47.953125 L 30.90625 0 L 17.203125 0 L 25.65625 -47.953125 L 9.359375 -47.953125 L 11.1875 -58.484375 Z M 57.484375 -58.484375 "/></g></g></g></g></g></g></svg>`;
+
 function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -23,180 +25,59 @@ function Login({ onLogin }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #3a9e9a 0%, #44A08D 40%, #5aaa50 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 20,
-      position: 'relative',
-      overflow: 'hidden',
+      background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 40%, #16a34a 100%)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: 20, position: 'relative', overflow: 'hidden',
     }}>
+      <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)', backgroundSize:'28px 28px', pointerEvents:'none' }} />
 
-      {/* Dot pattern overlay — matching your logo style */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)',
-        backgroundSize: '28px 28px',
-        pointerEvents: 'none',
-      }} />
-
-      {/* Login Card */}
-      <div style={{
-        background: '#fff',
-        borderRadius: 24,
-        padding: '44px 36px',
-        width: '100%',
-        maxWidth: 420,
-        boxShadow: '0 24px 60px rgba(0,0,0,0.15)',
-        position: 'relative',
-        zIndex: 1,
-      }}>
+      <div style={{ background:'#fff', borderRadius:24, padding:'44px 36px', width:'100%', maxWidth:420, boxShadow:'0 24px 60px rgba(0,0,0,0.15)', position:'relative', zIndex:1 }}>
 
         {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{
-            width: 64, height: 64,
-            background: 'linear-gradient(135deg, #3a9e9a, #5aaa50)',
-            borderRadius: 18,
-            display: 'flex', alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 16px',
-            boxShadow: '0 8px 24px rgba(78,205,196,0.35)',
-          }}>
-            <span style={{
-              fontSize: 22, fontWeight: 900,
-              fontStyle: 'italic', color: '#fff',
-              letterSpacing: '-1px',
-            }}>FT</span>
+        <div style={{ textAlign:'center', marginBottom:32 }}>
+          <img src="/favicon.svg" alt="FinanceTrack" style={{ width:80, height:80, margin:'0 auto 16px', borderRadius:20, display:'block', boxShadow:'0 8px 24px rgba(13,148,136,0.35)' }} />
+          <div style={{ fontSize:26, fontWeight:800, color:'#134e4a', letterSpacing:'-0.5px' }}>
+            <span style={{ fontWeight:700, fontFamily:"'Libre Baskerville',Georgia,serif" }}>Finance</span>
+            <span style={{ fontStyle:'italic', fontWeight:800, fontFamily:'Inter,sans-serif', background:'linear-gradient(135deg,#0d9488,#4ade80)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>Track</span>
           </div>
-
-          {/* FinanceTrack wordmark */}
-          <div style={{ fontSize: 26, fontWeight: 800, color: '#1a1d2e', letterSpacing: '-0.5px' }}>
-            <span style={{ fontWeight: 700, color: '#1a1d2e' }}>Finance</span>
-            <span style={{
-              fontStyle: 'italic', fontWeight: 900,
-              background: 'linear-gradient(135deg, #3a9e9a, #5aaa50)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}>Track</span>
-          </div>
-          <p style={{ color: '#7a7f9a', fontSize: 13.5, marginTop: 6 }}>
-            Personal Finance Manager
-          </p>
+          <p style={{ color:'#6b7280', fontSize:13.5, marginTop:6 }}>Personal Finance Manager</p>
         </div>
 
-        {/* Welcome text */}
-        <div style={{ marginBottom: 24, textAlign: 'center' }}>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a1d2e', marginBottom: 4 }}>
-            Welcome back 👋
-          </h2>
-          <p style={{ fontSize: 13, color: '#7a7f9a' }}>
-            Enter your password to continue
-          </p>
+        <div style={{ marginBottom:24, textAlign:'center' }}>
+          <h2 style={{ fontSize:18, fontWeight:700, color:'#134e4a', marginBottom:4 }}>Welcome back 👋</h2>
+          <p style={{ fontSize:13, color:'#6b7280' }}>Enter your password to continue</p>
         </div>
 
-        {/* Password input */}
-        <div style={{ marginBottom: 16 }}>
-          <label style={{
-            fontSize: 12.5, fontWeight: 600,
-            color: '#7a7f9a', display: 'block',
-            marginBottom: 8, letterSpacing: '0.2px',
-          }}>
-            PASSWORD
-          </label>
-          <div style={{ position: 'relative' }}>
+        <div style={{ marginBottom:16 }}>
+          <label style={{ fontSize:12.5, fontWeight:600, color:'#6b7280', display:'block', marginBottom:8, letterSpacing:'0.2px' }}>PASSWORD</label>
+          <div style={{ position:'relative' }}>
             <input
               type={showPassword ? 'text' : 'password'}
               placeholder="Enter your password"
               value={password}
               onChange={e => { setPassword(e.target.value); setError(''); }}
               onKeyDown={handleKeyDown}
-              style={{
-                width: '100%', padding: '12px 44px 12px 14px',
-                border: `1.5px solid ${error ? '#ef4444' : '#eaecf0'}`,
-                borderRadius: 10, fontSize: 14, outline: 'none',
-                boxSizing: 'border-box', transition: 'all 0.18s',
-                fontFamily: 'Inter, sans-serif', color: '#1a1d2e',
-                background: error ? '#fff5f5' : '#fff',
-              }}
-              onFocus={e => {
-                e.target.style.borderColor = '#4ECDC4';
-                e.target.style.boxShadow = '0 0 0 3px rgba(78,205,196,0.15)';
-              }}
-              onBlur={e => {
-                e.target.style.borderColor = error ? '#ef4444' : '#eaecf0';
-                e.target.style.boxShadow = 'none';
-              }}
+              style={{ width:'100%', padding:'12px 44px 12px 14px', border:`1.5px solid ${error?'#ef4444':'#d1fae5'}`, borderRadius:10, fontSize:14, outline:'none', boxSizing:'border-box', transition:'all 0.18s', fontFamily:'Inter,sans-serif', color:'#134e4a', background:error?'#fff5f5':'#fff' }}
+              onFocus={e => { e.target.style.borderColor='#0d9488'; e.target.style.boxShadow='0 0 0 3px rgba(13,148,136,0.15)'; }}
+              onBlur={e => { e.target.style.borderColor=error?'#ef4444':'#d1fae5'; e.target.style.boxShadow='none'; }}
               autoFocus
             />
-            <button
-              onClick={() => setShowPassword(!showPassword)}
-              style={{
-                position: 'absolute', right: 12, top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none', border: 'none',
-                cursor: 'pointer', fontSize: 16, color: '#7a7f9a',
-                padding: 4,
-              }}
-            >
+            <button onClick={()=>setShowPassword(!showPassword)} style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', fontSize:16, color:'#6b7280', padding:4 }}>
               {showPassword ? '🙈' : '👁️'}
             </button>
           </div>
-
-          {error && (
-            <div style={{
-              color: '#ef4444', fontSize: 12.5,
-              marginTop: 8, display: 'flex',
-              alignItems: 'center', gap: 4,
-            }}>
-              ❌ {error}
-            </div>
-          )}
+          {error && <div style={{ color:'#ef4444', fontSize:12.5, marginTop:8, display:'flex', alignItems:'center', gap:4 }}>❌ {error}</div>}
         </div>
 
-        {/* Login button */}
-        <button
-          onClick={handleLogin}
-          style={{
-            width: '100%', padding: '13px',
-            background: 'linear-gradient(135deg, #3a9e9a, #5aaa50)',
-            color: '#fff', border: 'none',
-            borderRadius: 99, fontSize: 15,
-            fontWeight: 700, cursor: 'pointer',
-            transition: 'all 0.18s', fontFamily: 'Inter, sans-serif',
-            boxShadow: '0 4px 16px rgba(78,205,196,0.35)',
-            letterSpacing: '0.2px',
-          }}
-          onMouseEnter={e => {
-            e.currentTarget.style.opacity = '0.92';
-            e.currentTarget.style.transform = 'translateY(-1px)';
-            e.currentTarget.style.boxShadow = '0 8px 24px rgba(78,205,196,0.4)';
-          }}
-          onMouseLeave={e => {
-            e.currentTarget.style.opacity = '1';
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 16px rgba(78,205,196,0.35)';
-          }}
-        >
+        <button onClick={handleLogin}
+          style={{ width:'100%', padding:13, background:'linear-gradient(135deg,#0d9488,#4ade80)', color:'#fff', border:'none', borderRadius:99, fontSize:15, fontWeight:700, cursor:'pointer', transition:'all 0.18s', fontFamily:'Inter,sans-serif', boxShadow:'0 4px 16px rgba(13,148,136,0.35)', letterSpacing:'0.2px' }}
+          onMouseEnter={e=>{ e.currentTarget.style.opacity='0.92'; e.currentTarget.style.transform='translateY(-1px)'; }}
+          onMouseLeave={e=>{ e.currentTarget.style.opacity='1'; e.currentTarget.style.transform='translateY(0)'; }}>
           Login →
         </button>
 
-        {/* Hint */}
-        <div style={{
-          textAlign: 'center', marginTop: 20,
-          fontSize: 12, color: '#7a7f9a',
-        }}>
-          🔒 Your data is stored locally on this device
-        </div>
-
-        {/* Default password hint */}
-        <div style={{
-          marginTop: 12, padding: '10px 14px',
-          background: 'linear-gradient(135deg, #e8faf5, #edfaed)',
-          borderRadius: 10, fontSize: 12,
-          color: '#3a9e9a', textAlign: 'center',
-          border: '1px solid rgba(78,205,196,0.2)',
-        }}>
+        <div style={{ textAlign:'center', marginTop:20, fontSize:12, color:'#6b7280' }}>🔒 Your data is stored locally on this device</div>
+        <div style={{ marginTop:12, padding:'10px 14px', background:'#f0fdf4', borderRadius:10, fontSize:12, color:'#0d9488', textAlign:'center', border:'1px solid #d1fae5' }}>
           💡 Default password: <strong>financetrack2026</strong>
         </div>
       </div>
