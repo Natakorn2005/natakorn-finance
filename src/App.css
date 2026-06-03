@@ -320,7 +320,7 @@ tr:last-child td { border-bottom: none; }
 /* ============================================================
    MOBILE
 ============================================================ */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .sidebar { display: none; }
   .content { margin-left: 0; padding: 16px 12px 80px; }
 
@@ -365,7 +365,7 @@ tr:last-child td { border-bottom: none; }
 /* ============================================================
    SMALL MOBILE
 ============================================================ */
-@media (max-width: 380px) {
+@media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr; }
   .content { padding: 12px 10px 80px; }
 }
