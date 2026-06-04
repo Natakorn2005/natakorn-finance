@@ -3,739 +3,425 @@ import { useDropzone } from 'react-dropzone';
 import { ACCOUNTS, TYPES } from '../constants';
 import { saveTransaction } from '../services/transactionService';
 
-// ================================================================
-// System Prompt
-// ================================================================
+// Check for duplicate transactions in localStorage
+function checkDuplicate(tx) {
+  try {
+    const all = JSON.parse(localStorage.getItem('ft_transactions') || '[]');
+    return all.find(t =>
+      t.DATE === tx.DATE &&
+      t.TIME === tx.TIME &&
+      t.ACCOUNT === tx.ACCOUNT &&
+      (
+        (Number(t.INCOME) === Number(tx.INCOME) && Number(tx.INCOME) > 0) ||
+        (Number(t.EXPENSE) === Number(tx.EXPENSE) && Number(tx.EXPENSE) > 0) ||
+        (Number(t.TRANSFER) === Number(tx.TRANSFER) && Number(tx.TRANSFER) > 0)
+      )
+    ) || null;
+  } catch { return null; }
+}
+
+const C = { teal:'#0d9488', tealLight:'#2dd4bf', green:'#4ade80', muted:'#f0fdf4', border:'#d1fae5', text:'#134e4a', sub:'#6b7280' };
+
 const SYSTEM_PROMPT = `You are an expert accounting assistant for "NATAKORN WISETWONGSAHAKIT" (Thai name: นฐกร วิเศษวงศ์สหกิจ).
-
 Your job: analyze the provided e-slip / receipt image and extract the data into a STRICT JSON ARRAY. Respond ONLY with a valid JSON array — no explanation, no markdown, no commentary.
+Each object MUST contain exactly these keys: DATE, TIME, ACCOUNT, DESCRIPTION, TYPE, REIMBURSE, REPAY, PAYEE_PAYER, INCOME, EXPENSE, TRANSFER, DESTINATION_ACCOUNT
+================================================================
+1. DATE (format: DD/MM/YYYY — always text)
+- Thai Buddhist year → Gregorian: BE 68=2025, BE 69=2026. 2-digit "69"→2026.
+- If MM/DD/YYYY, reorder to DD/MM/YYYY. NEVER shift midnight timestamp.
+2. TIME (format: HH:MM:SS) — append ":00" if seconds missing.
+3. ACCOUNT — SOURCE account. Must be EXACTLY one of:
+  KMA (บัญชีเล็ก) | ends 4884
+  Krungsri Boarding Card | ends 1183
+  SCB (บัญชีใหญ่) | ends 2455
+  SCB (บัญชีกลาง) | ends 6158
+  SCB (บัญชีมหาวิทยาลัย) | ends 4772
+  Kept (บัญชีเงินลงทุน) | ends 1999
+  Make (บัญชีรายวัน) | ends 5754
+  Truemoney Wallet | name only
+  UOB (บัตรเครดิต) | name only
+  Anywheel Wallet | name only
+  PaoTang Wallet (เป๋าตัง) | name only
+  เงินสด | default
+RULES: Strip dashes/spaces from account number, check ENDS WITH digits. DIGIT MATCH > logo. Krungsri logo + 4884 = KMA (บัญชีเล็ก). Krungsri Boarding Card = credit card ends 1183 only.
+4. NAME RECOGNITION: นฐกร วิเศษวงศ์สหกิจ / NATAKORN WISETWONGSAHAKIT. Partial match ok.
+5. DIRECTION: RECIPIENT is yours→TRANSFER. Sender≠you, recipient=you→INCOME. Recipient≠you→EXPENSE. Unclear→EXPENSE.
+6. TRANSFER: one row only, TYPE="การโอนย้ายเงิน : ถอนเงิน / โอนเงิน", DESTINATION_ACCOUNT=matched name. Wallet top-ups=TRANSFER. ATM withdrawal DESTINATION="เงินสด".
+7. DESCRIPTION: memo/note base. Strip "คืนเงิน" (REIMBURSE) and "(เบิก)" (REPAY). Keep station codes: S8-S12, BWA-SLY etc.
+8. คืนเงิน[ชื่อ]ค่า[X] pattern: EXPENSE+REIMBURSE=true, TYPE based on [X].
+9. TYPE must be EXACTLY one of:
+INCOME: รายรับ : เงินประจำเดือน | รายรับ : รายได้เสริม | รายรับ : เงินคืน | รายรับ : รายรับอื่น ๆ
+EXPENSE: อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม | อาหารและเครื่องดื่ม : เครื่องดื่ม | อาหารและเครื่องดื่ม : ขนมและของกินเล่น | การเดินทาง : ขนส่งสาธารณะ | การเดินทาง : แท็กซี่ / วินมอเตอร์ไซค์ | รายจ่ายประจำเดือน : ค่าหอพัก | รายจ่ายประจำเดือน : ค่าน้ำ / ค่าไฟฟ้า | รายจ่ายประจำเดือน : ค่าซักผ้า / อบผ้า | รายจ่ายประจำเดือน : ค่าเน็ตมือถือ | รายจ่ายประจำเดือน : ค่าบริการรายเดือน | การศึกษา : ค่าการศึกษา | การศึกษา : สื่อการเรียน / เครื่องเขียน | การศึกษา : อุปกรณ์ทำโปรเจกต์ | ความบันเทิง : ค่าเข้าร่วมกิจกรรม | ความบันเทิง : ของใช้ส่วนตัว | ความบันเทิง : เสื้อผ้า / เครื่องแต่งกาย | ความบันเทิง : ของขวัญ / สังสรรค์ | ความบันเทิง : ท่องเที่ยว | สุขภาพ / ค่ารักษาพยาบาล | เงินออมและการลงทุน : เงินออม | เงินออมและการลงทุน : เงินฉุกเฉิน | เงินออมและการลงทุน : การลงทุน | ค่าใช้จ่ายอื่น ๆ
+TRANSFER: การโอนย้ายเงิน : ถอนเงิน / โอนเงิน
+CONFIDENCE: append "?" ONLY to TYPE field if <80% confident. NEVER append "?" to ACCOUNT, DATE, TIME, or any other field.
+MERCHANTS: 7-Eleven/Lotus's→SPLIT per item. Cafe Amazon/Starbucks→เครื่องดื่ม. BTS/MRT/SRT/BRT/Salaya Link→ขนส่งสาธารณะ(keep code). Anywheel ride→ขนส่งสาธารณะ+Anywheel Wallet. City Bike/City Bike Rental/Device ID→Anywheel Wallet+ขนส่งสาธารณะ. Grab+person→แท็กซี่. Grab+shop→อาหาร.
+10. REIMBURSE: true ONLY if memo EXPLICITLY has "คืนเงิน". NEVER infer. Strip it.
+    REPAY: true if "(เบิก)" in memo OR TYPE is: การศึกษา:อุปกรณ์ทำโปรเจกต์, การศึกษา:ค่าการศึกษา, ความบันเทิง:ค่าเข้าร่วมกิจกรรม, สุขภาพ/ค่ารักษาพยาบาล.
+11. MULTI-ITEM: one object PER ITEM. Share DATE/TIME/ACCOUNT/PAYEE_PAYER. Pro-rata discount.
+12. PAYEE_PAYER: full name as printed. Drop bank prefix, keep title.
+13. AMOUNTS: exactly one non-zero. DESTINATION_ACCOUNT only when TRANSFER>0.`;
 
-Each object MUST contain exactly these keys:
-DATE, TIME, ACCOUNT, DESCRIPTION, TYPE, REIMBURSE, REPAY, PAYEE_PAYER, INCOME, EXPENSE, TRANSFER, DESTINATION_ACCOUNT
-
-================================================================
-1. DATE  (format: DD/MM/YYYY — always text)
-================================================================
-- Read the date printed on the slip.
-- Thai Buddhist year → Gregorian: AD = BE - 543.
-  - BE 68 = 2025, BE 69 = 2026. A 2-digit year "69" → 2026.
-- If the format looks like MM/DD/YYYY, reorder it to DD/MM/YYYY.
-- Trust the date exactly as printed. NEVER shift a midnight (00:xx) timestamp to the previous day.
-
-================================================================
-2. TIME  (format: HH:MM:SS — always text)
-================================================================
-- Read the time printed on the slip.
-- If seconds are missing, append ":00".
-- A 00:xx:xx time belongs to the date stated on the slip — do not adjust.
-
-================================================================
-3. ACCOUNT  — the SOURCE account that paid / sent the money
-================================================================
-Must be EXACTLY one of these names:
-
-  Account name              | How to match it
-  --------------------------|----------------------------------------
-  KMA (บัญชีเล็ก)            | account tail digits end with 4884
-  Krungsri Boarding Card    | account tail digits end with 1183
-  SCB (บัญชีใหญ่)            | account tail digits end with 2455
-  SCB (บัญชีกลาง)            | account tail digits end with 6158
-  SCB (บัญชีมหาวิทยาลัย)     | account tail digits end with 4772
-  Kept (บัญชีเงินลงทุน)      | account tail digits end with 1999
-  Make (บัญชีรายวัน)         | account tail digits end with 5754
-  Truemoney Wallet          | by issuer/name only
-  UOB (บัตรเครดิต)           | by issuer/name only (UOB card)
-  Anywheel Wallet           | by issuer/name only
-  PaoTang Wallet (เป๋าตัง)   | by issuer/name only
-  เงินสด                     | no slip / cannot determine
-
-ACCOUNT MATCHING RULES:
-- Account numbers on slips are often masked (e.g. XXX-X-X4884-X or 199-9).
-- Strip ALL dashes, spaces, and dots from the account number, then check whether
-  the resulting digit string ENDS WITH one of the tail digits above.
-  Example: "199-9" → "1999" → matches Kept (บัญชีเงินลงทุน).
-- DIGIT MATCH TAKES PRIORITY over bank logo or issuer name. Even if the slip
-  shows the Krungsri logo, if the account number ends with 4884 it is
-  KMA (บัญชีเล็ก) — NOT Krungsri Boarding Card.
-- Krungsri Boarding Card is a CREDIT CARD (ends with 1183). A Krungsri slip
-  showing a savings account number (e.g. XXX-4-74884-X) is KMA (บัญชีเล็ก).
-- If the slip shows a holder name instead of a number, match the bank/issuer.
-- If nothing matches, default to "เงินสด".
-
-================================================================
-4. NAME RECOGNITION (used to decide transaction direction)
-================================================================
-These identify the OWNER (you):
-  - Thai:    นฐกร วิเศษวงศ์สหกิจ
-  - English: NATAKORN WISETWONGSAHAKIT
-  - Partial match is acceptable: first name alone ("นฐกร" or "NATAKORN") counts.
-  - Names may be partially masked on slips — match the visible portion.
-
-================================================================
-5. TRANSACTION DIRECTION — choose INCOME, EXPENSE, or TRANSFER
-================================================================
-Exactly ONE of INCOME / EXPENSE / TRANSFER holds the amount. The other two = 0.
-
-Decision logic:
-  - RECIPIENT is one of YOUR OWN accounts/wallets (name or tail digits match the
-    table above, or the holder name matches YOU) → TRANSFER.
-  - SENDER is someone else AND RECIPIENT is YOU → INCOME.
-  - RECIPIENT is someone else (a person or merchant who is not you) → EXPENSE.
-  - Any "โอนเงิน" / "PromptPay" to a named payee who is NOT you → EXPENSE or TRANSFER,
-    NEVER INCOME, regardless of the note.
-  - If direction is genuinely unclear with only one amount shown → default EXPENSE.
-
-Make a best guess when uncertain; the user reviews before saving.
-
-================================================================
-6. TRANSFER rules (money moving between YOUR OWN accounts)
-================================================================
-- Record ONE row only, from the SOURCE account. NEVER create a second row for the
-  receiving account.
-- TYPE = "การโอนย้ายเงิน : ถอนเงิน / โอนเงิน"
-- DESTINATION_ACCOUNT = the matched destination account name (same name format).
-- Wallet top-ups are TRANSFERS:
-    - Top-up to Truemoney Wallet / Anywheel Wallet / PaoTang Wallet from a bank
-      = TRANSFER, DESTINATION_ACCOUNT = that wallet.
-- ATM withdrawal: TYPE = "การโอนย้ายเงิน : ถอนเงิน / โอนเงิน",
-    ACCOUNT = source bank, DESTINATION_ACCOUNT = "เงินสด".
-- Cash deposit (CDM / ATM deposit): ACCOUNT = "เงินสด",
-    DESTINATION_ACCOUNT = the receiving bank account.
-
-================================================================
-7. DESCRIPTION
-================================================================
-- Use the memo/note on the slip as the base.
-- Strip the keyword "คืนเงิน" (see REIMBURSE) and "(เบิก)" (see REPAY) from the text.
-- Keep transit station codes verbatim, e.g. "S8-S12", "N3-CEN", "SLY-BWA", "BWA-SLY".
-- For a shared/split bill (memo contains "หารกัน" or "ส่วนของ"): record only YOUR
-  share (the amount actually shown as paid) and note the split in DESCRIPTION.
-
-================================================================
-8. คืนเงิน DIRECTION RULE
-================================================================
-- Pattern: an OUTGOING transfer whose memo is "คืนเงิน[ชื่อ]ค่า[X]"
-- Therefore: EXPENSE = amount, REIMBURSE = true, strip "คืนเงิน[ชื่อ]" from DESCRIPTION,
-  and set TYPE based on [X].
-
-================================================================
-9. TYPE — must be EXACTLY one of the following
-================================================================
-INCOME types:
-  - รายรับ : เงินประจำเดือน
-  - รายรับ : รายได้เสริม
-  - รายรับ : เงินคืน
-  - รายรับ : รายรับอื่น ๆ
-
-EXPENSE types:
-  - อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม
-  - อาหารและเครื่องดื่ม : เครื่องดื่ม
-  - อาหารและเครื่องดื่ม : ขนมและของกินเล่น
-  - การเดินทาง : ขนส่งสาธารณะ
-  - การเดินทาง : แท็กซี่ / วินมอเตอร์ไซค์
-  - รายจ่ายประจำเดือน : ค่าหอพัก
-  - รายจ่ายประจำเดือน : ค่าน้ำ / ค่าไฟฟ้า
-  - รายจ่ายประจำเดือน : ค่าซักผ้า / อบผ้า
-  - รายจ่ายประจำเดือน : ค่าเน็ตมือถือ
-  - รายจ่ายประจำเดือน : ค่าบริการรายเดือน
-  - การศึกษา : ค่าการศึกษา
-  - การศึกษา : สื่อการเรียน / เครื่องเขียน
-  - การศึกษา : อุปกรณ์ทำโปรเจกต์
-  - ความบันเทิง : ค่าเข้าร่วมกิจกรรม
-  - ความบันเทิง : ของใช้ส่วนตัว
-  - ความบันเทิง : เสื้อผ้า / เครื่องแต่งกาย
-  - ความบันเทิง : ของขวัญ / สังสรรค์
-  - ความบันเทิง : ท่องเที่ยว
-  - สุขภาพ / ค่ารักษาพยาบาล
-  - เงินออมและการลงทุน : เงินออม
-  - เงินออมและการลงทุน : เงินฉุกเฉิน
-  - เงินออมและการลงทุน : การลงทุน
-
-TRANSFER type:
-  - การโอนย้ายเงิน : ถอนเงิน / โอนเงิน
-
-CONFIDENCE FLAG:
-- If less than ~80% confident of TYPE, append "?" (e.g. "ความบันเทิง : ของใช้ส่วนตัว?")
-
-MERCHANT MAPPING:
-  - 7-Eleven, Lotus's, BigC mini → SPLIT per item
-  - Cafe Amazon, Starbucks → อาหารและเครื่องดื่ม : เครื่องดื่ม
-  - BTS, MRT, SRT, BRT, Salaya Link → การเดินทาง : ขนส่งสาธารณะ (keep station code)
-  - Anywheel RIDE → การเดินทาง : ขนส่งสาธารณะ, ACCOUNT = Anywheel Wallet
-  - City Bike / City Bike Rental / Device ID slip → Anywheel Wallet + ขนส่งสาธารณะ
-  - Grab + person PAYEE → แท็กซี่ / วินมอเตอร์ไซค์
-  - Grab + shop PAYEE → อาหารและเครื่องดื่ม : อาหารและเครื่องดื่ม
-
-================================================================
-10. REIMBURSE and REPAY
-================================================================
-REIMBURSE:
-  - true ONLY if memo EXPLICITLY contains "คืนเงิน". Strip it from DESCRIPTION.
-  - NEVER infer from context alone.
-
-REPAY:
-  - true if memo contains "(เบิก)". Strip it from DESCRIPTION.
-  - Auto-set true for: การศึกษา : อุปกรณ์ทำโปรเจกต์, การศึกษา : ค่าการศึกษา,
-    ความบันเทิง : ค่าเข้าร่วมกิจกรรม, สุขภาพ / ค่ารักษาพยาบาล
-
-================================================================
-11. MULTI-ITEM RECEIPTS
-================================================================
-- One JSON object PER ITEM. Never collapse to single row.
-- Shared DATE, TIME, ACCOUNT, PAYEE_PAYER across all rows.
-- Distribute discount pro-rata by item price.
-
-================================================================
-12. PAYEE_PAYER
-================================================================
-- Full name exactly as printed. Drop bank prefix, keep title (นาย/นาง/น.ส.).
-- EXPENSE → PAYEE. INCOME → PAYER. TRANSFER → recipient side.
-
-================================================================
-13. AMOUNTS
-================================================================
-- Exactly one of INCOME/EXPENSE/TRANSFER is non-zero; others = 0.
-- DESTINATION_ACCOUNT filled only when TRANSFER > 0; otherwise "".`;
-
-// ================================================================
-// Provider config
-// ================================================================
 const PROVIDERS = {
   'claude-sonnet': { label: 'Claude Sonnet 4.6', type: 'anthropic', model: 'claude-sonnet-4-6' },
   'claude-haiku':  { label: 'Claude Haiku 4.5',  type: 'anthropic', model: 'claude-haiku-4-5-20251001' },
   'gemini-flash':  { label: 'Gemini 2.5 Flash',  type: 'gemini',    model: 'gemini-2.5-flash' },
 };
 
-// ================================================================
-// API callers
-// ================================================================
-async function callAnthropic(apiKey, imageBase64, imageMimeType, model) {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+async function callAnthropic(apiKey, b64, mime, model) {
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 4000,
-      system: SYSTEM_PROMPT,
-      messages: [{
-        role: 'user',
-        content: [
-          {
-            type: 'image',
-            source: { type: 'base64', media_type: imageMimeType, data: imageBase64 },
-          },
-          { type: 'text', text: 'Analyze this e-slip and return the JSON array.' },
-        ],
-      }],
-    }),
+    headers: { 'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
+    body: JSON.stringify({ model, max_tokens:8000, system:SYSTEM_PROMPT,
+      messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mime,data:b64}},{type:'text',text:'Analyze this e-slip.'}]}] }),
   });
-  const data = await response.json();
-  if (data.error) throw new Error(data.error.message);
-  const text = data.content?.[0]?.text;
-  if (!text) throw new Error('Empty response from Claude');
-  const clean = text.replace(/```json|```/g, '').trim();
-  const parsed = JSON.parse(clean);
-  return Array.isArray(parsed) ? parsed : [parsed];
-}
-
-async function callGemini(apiKey, imageBase64, imageMimeType, model) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents: [{
-        parts: [
-          { inline_data: { mime_type: imageMimeType, data: imageBase64 } },
-          { text: 'Analyze this e-slip and return the JSON array.' },
-        ],
-      }],
-      generationConfig: {
-        temperature: 0.0,
-        maxOutputTokens: 4000,
-        responseMimeType: 'application/json',
-      },
-    }),
-  });
-  const data = await response.json();
-  if (data.error) throw new Error(data.error.message);
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Empty response from Gemini');
-  const clean = text.replace(/```json|```/g, '').trim();
-  const parsed = JSON.parse(clean);
-  return Array.isArray(parsed) ? parsed : [parsed];
-}
-
-async function analyzeImage(providerKey, imageFile) {
-  const cfg = PROVIDERS[providerKey];
-  const base64 = await new Promise((res, rej) => {
-    const reader = new FileReader();
-    reader.onload = () => res(reader.result.split(',')[1]);
-    reader.onerror = rej;
-    reader.readAsDataURL(imageFile);
-  });
-
-  // Detect real mime type from magic bytes
-  const raw = await imageFile.arrayBuffer();
-  const bytes = new Uint8Array(raw);
-  let mime = imageFile.type || 'image/jpeg';
-  if (bytes[0] === 0xFF && bytes[1] === 0xD8) mime = 'image/jpeg';
-  else if (bytes[0] === 0x89 && bytes[1] === 0x50) mime = 'image/png';
-  else if (bytes[0] === 0x52 && bytes[1] === 0x49) mime = 'image/webp';
-
-  if (cfg.type === 'anthropic') {
-    const apiKey = localStorage.getItem('anthropic_api_key');
-    if (!apiKey) throw new Error('Anthropic API key not set in Settings');
-    return callAnthropic(apiKey, base64, mime, cfg.model);
-  } else {
-    const apiKey = localStorage.getItem('gemini_api_key');
-    if (!apiKey) throw new Error('Gemini API key not set in Settings');
-    return callGemini(apiKey, base64, mime, cfg.model);
+  const d = await r.json();
+  if (d.error) throw new Error(d.error.message);
+  const t = d.content?.[0]?.text; if (!t) throw new Error('Empty response');
+  let cleaned = t.replace(/```json|```/g,'').trim();
+  // Fix truncated JSON by finding the last complete object
+  try {
+    const p = JSON.parse(cleaned);
+    return Array.isArray(p) ? p : [p];
+  } catch(e) {
+    // Try to recover truncated JSON array
+    const lastBrace = cleaned.lastIndexOf('}');
+    if (lastBrace > 0) {
+      cleaned = cleaned.substring(0, lastBrace+1);
+      if (!cleaned.startsWith('[')) cleaned = '[' + cleaned;
+      if (!cleaned.endsWith(']')) cleaned = cleaned + ']';
+      try {
+        const p = JSON.parse(cleaned);
+        return Array.isArray(p) ? p : [p];
+      } catch(e2) { throw new Error('AI returned invalid JSON: ' + e.message); }
+    }
+    throw new Error('AI returned invalid JSON: ' + e.message);
   }
 }
+async function callGemini(apiKey, b64, mime, model) {
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ system_instruction:{parts:[{text:SYSTEM_PROMPT}]},
+      contents:[{parts:[{inline_data:{mime_type:mime,data:b64}},{text:'Analyze this e-slip.'}]}],
+      generationConfig:{temperature:0,maxOutputTokens:8000,responseMimeType:'application/json'} }),
+  });
+  const d = await r.json();
+  if (d.error) throw new Error(d.error.message);
+  const t = d.candidates?.[0]?.content?.parts?.[0]?.text; if (!t) throw new Error('Empty response');
+  let cleaned = t.replace(/```json|```/g,'').trim();
+  try {
+    const p = JSON.parse(cleaned);
+    return Array.isArray(p) ? p : [p];
+  } catch(e) {
+    const lastBrace = cleaned.lastIndexOf('}');
+    if (lastBrace > 0) {
+      cleaned = cleaned.substring(0, lastBrace+1);
+      if (!cleaned.startsWith('[')) cleaned = '[' + cleaned;
+      if (!cleaned.endsWith(']')) cleaned = cleaned + ']';
+      try {
+        const p = JSON.parse(cleaned);
+        return Array.isArray(p) ? p : [p];
+      } catch(e2) { throw new Error('AI returned invalid JSON: ' + e.message); }
+    }
+    throw new Error('AI returned invalid JSON: ' + e.message);
+  }
+}
+async function analyzeImage(provKey, file) {
+  const cfg = PROVIDERS[provKey];
+  const b64 = await new Promise((res,rej)=>{ const rd=new FileReader(); rd.onload=()=>res(rd.result.split(',')[1]); rd.onerror=(e)=>rej(new Error('File read failed')); rd.readAsDataURL(file); });
+  const raw = await file.arrayBuffer(); const by = new Uint8Array(raw);
+  let mime = file.type||'image/jpeg';
+  if(by[0]===0xFF&&by[1]===0xD8) mime='image/jpeg';
+  else if(by[0]===0x89&&by[1]===0x50) mime='image/png';
+  else if(by[0]===0x52&&by[1]===0x49) mime='image/webp';
+  if(cfg.type==='anthropic'){ const k=localStorage.getItem('anthropic_api_key'); if(!k) throw new Error('Anthropic API key not set in Settings'); return callAnthropic(k,b64,mime,cfg.model); }
+  else { const k=localStorage.getItem('gemini_api_key'); if(!k) throw new Error('Gemini API key not set in Settings'); return callGemini(k,b64,mime,cfg.model); }
+}
 
-// ================================================================
-// Status badge
-// ================================================================
-const STATUS = {
-  pending:   { icon: '⏳', color: '#94a3b8', label: 'Pending' },
-  analyzing: { icon: '🤖', color: '#667eea', label: 'Analyzing' },
-  done:      { icon: '✅', color: '#22c55e', label: 'Ready' },
-  error:     { icon: '❌', color: '#ef4444', label: 'Error' },
-  saved:     { icon: '💾', color: '#8b5cf6', label: 'Saved' },
+async function analyzeImageFromB64(provKey, b64, mime) {
+  const cfg = PROVIDERS[provKey];
+  if(cfg.type==='anthropic'){ const k=localStorage.getItem('anthropic_api_key'); if(!k) throw new Error('Anthropic API key not set in Settings'); return callAnthropic(k,b64,mime,cfg.model); }
+  else { const k=localStorage.getItem('gemini_api_key'); if(!k) throw new Error('Gemini API key not set in Settings'); return callGemini(k,b64,mime,cfg.model); }
+}
+
+const ST = {
+  pending:  {icon:'⏳',color:C.sub,   label:'Pending'},
+  analyzing:{icon:'🤖',color:C.teal,  label:'Analyzing'},
+  done:     {icon:'✅',color:'#16a34a',label:'Ready'},
+  error:    {icon:'❌',color:'#ef4444',label:'Error'},
+  saved:    {icon:'💾',color:C.teal,  label:'Saved'},
 };
 
-// ================================================================
-// Transaction form for a single slip
-// ================================================================
+const lbl = { fontSize:11,fontWeight:700,color:C.sub,textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4 };
+const inp = { width:'100%',padding:'7px 10px',borderRadius:7,border:`1.5px solid ${C.border}`,fontSize:13,background:'#fff',boxSizing:'border-box',outline:'none',fontFamily:'inherit',color:C.text };
+
 function SlipForm({ slip, onChange, onSave }) {
-  const { transactions, status, error, saving, saved } = slip;
-
-  if (status === 'pending') {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', height: '100%', color: '#94a3b8', gap: 12 }}>
-        <div style={{ fontSize: 48 }}>🧾</div>
-        <p style={{ margin: 0 }}>Waiting to analyze...</p>
-      </div>
-    );
-  }
-
-  if (status === 'analyzing') {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', height: '100%', color: '#667eea', gap: 12 }}>
-        <div style={{ fontSize: 48, animation: 'spin 1s linear infinite' }}>🤖</div>
-        <p style={{ margin: 0 }}>AI is reading your slip...</p>
-        <small style={{ color: '#aaa' }}>This takes a few seconds</small>
-        <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
-  }
-
-  if (status === 'error') {
-    return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center',
-        justifyContent: 'center', height: '100%', gap: 12, padding: 24 }}>
-        <div style={{ fontSize: 48 }}>❌</div>
-        <p style={{ color: '#ef4444', margin: 0, textAlign: 'center', fontSize: 14 }}>{error}</p>
-      </div>
-    );
-  }
-
+  const { transactions:txs, status, error, saving, saved } = slip;
+  if (status==='pending') return (
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',color:C.sub,gap:12}}>
+      <div style={{fontSize:48}}>🧾</div><p style={{margin:0}}>Waiting to analyze...</p>
+    </div>
+  );
+  if (status==='analyzing') return (
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',color:C.teal,gap:12}}>
+      <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
+      <div style={{fontSize:48,animation:'spin 1s linear infinite'}}>🤖</div>
+      <p style={{margin:0}}>AI is reading your slip...</p>
+      <small style={{color:C.sub}}>This takes a few seconds</small>
+    </div>
+  );
+  if (status==='error') return (
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:12,padding:24}}>
+      <div style={{fontSize:48}}>❌</div>
+      <p style={{color:'#ef4444',margin:0,textAlign:'center',fontSize:14}}>{error}</p>
+    </div>
+  );
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 0, height: '100%' }}>
-      {/* Saved banner */}
-      {saved && (
-        <div style={{ background: '#dcfce7', color: '#16a34a', padding: '10px 16px',
-          fontSize: 13, fontWeight: 600, borderRadius: 8, marginBottom: 12 }}>
-          ✅ Saved successfully!
-        </div>
-      )}
-
-      {/* Transaction rows */}
-      <div style={{ flex: 1, overflowY: 'auto', paddingRight: 4 }}>
-        {transactions.map((tx, i) => (
-          <div key={i} style={{ marginBottom: 16, padding: 14, background: '#f8f9ff',
-            borderRadius: 10, border: '1px solid #e8eaff' }}>
-
-            {transactions.length > 1 && (
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#667eea',
-                marginBottom: 10 }}>Item {i + 1} of {transactions.length}</div>
-            )}
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              {/* Date */}
-              <div>
-                <label style={labelStyle}>Date</label>
-                <input style={inputStyle} value={tx.DATE || ''}
-                  onChange={e => onChange(i, 'DATE', e.target.value)} />
-              </div>
-              {/* Time */}
-              <div>
-                <label style={labelStyle}>Time</label>
-                <input style={inputStyle} value={tx.TIME || ''}
-                  onChange={e => onChange(i, 'TIME', e.target.value)} />
-              </div>
-              {/* Account */}
-              <div>
-                <label style={labelStyle}>Account</label>
-                <select style={inputStyle} value={tx.ACCOUNT || ''}
-                  onChange={e => onChange(i, 'ACCOUNT', e.target.value)}>
-                  {ACCOUNTS.map(a => <option key={a}>{a}</option>)}
+    <div style={{display:'flex',flexDirection:'column',gap:0,height:'100%'}}>
+      {saved && <div style={{background:C.muted,color:'#16a34a',padding:'10px 16px',fontSize:13,fontWeight:600,borderRadius:8,marginBottom:12,border:`1px solid ${C.border}`}}>✅ Saved successfully!</div>}
+      <div style={{flex:1,overflowY:'auto',paddingRight:4}}>
+        {txs.map((tx,i) => (
+          <div key={i} style={{marginBottom:16,padding:14,background:C.muted,borderRadius:10,border:`1px solid ${C.border}`}}>
+            {txs.length>1 && <div style={{fontSize:12,fontWeight:700,color:C.teal,marginBottom:10}}>Item {i+1} of {txs.length}</div>}
+            {(()=>{const dup=checkDuplicate(tx);return dup?<div style={{background:'#fef9c3',border:'1px solid #fcd34d',borderRadius:8,padding:'8px 12px',marginBottom:10,fontSize:12,color:'#92400e'}}>⚠️ Possible duplicate — matches <strong>{dup.ID||dup.DATE}</strong> {dup.DESCRIPTION}. Check before saving.</div>:null;})()}
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+              {[['DATE','Date','text'],['TIME','Time','text']].map(([f,lb,tp])=>(
+                <div key={f}><label style={lbl}>{lb}</label><input style={inp} type={tp} value={tx[f]||''} onChange={e=>onChange(i,f,e.target.value)}/></div>
+              ))}
+              <div><label style={lbl}>Account</label>
+                <select style={inp} value={tx.ACCOUNT||''} onChange={e=>onChange(i,'ACCOUNT',e.target.value)}>
+                  {ACCOUNTS.map(a=><option key={a}>{a}</option>)}
                 </select>
               </div>
-              {/* Type */}
-              <div>
-                <label style={labelStyle}>
-                  Category
-                  {tx.TYPE?.endsWith('?') && (
-                    <span style={{ color: '#f59e0b', marginLeft: 6, fontSize: 11 }}>⚠️ verify</span>
-                  )}
-                </label>
-                <select style={inputStyle} value={(tx.TYPE || '').replace('?', '')}
-                  onChange={e => onChange(i, 'TYPE', e.target.value)}>
-                  {TYPES.map(t => <option key={t}>{t}</option>)}
+              <div><label style={lbl}>Category {tx.TYPE?.endsWith('?')&&<span style={{color:'#f59e0b',marginLeft:4,fontSize:10}}>⚠️ verify</span>}</label>
+                <select style={inp} value={(tx.TYPE||'').replace('?','')} onChange={e=>onChange(i,'TYPE',e.target.value)}>
+                  {TYPES.map(t=><option key={t}>{t}</option>)}
                 </select>
               </div>
-              {/* Description */}
-              <div style={{ gridColumn: '1 / -1' }}>
-                <label style={labelStyle}>Description</label>
-                <input style={inputStyle} value={tx.DESCRIPTION || ''}
-                  onChange={e => onChange(i, 'DESCRIPTION', e.target.value)} />
-              </div>
-              {/* Payee */}
-              <div style={{ gridColumn: '1 / -1' }}>
-                <label style={labelStyle}>Payee / Payer</label>
-                <input style={inputStyle} value={tx.PAYEE_PAYER || ''}
-                  onChange={e => onChange(i, 'PAYEE_PAYER', e.target.value)} />
-              </div>
-              {/* Amounts */}
-              <div>
-                <label style={labelStyle}>Income (฿)</label>
-                <input style={inputStyle} type="number" value={tx.INCOME || 0}
-                  onChange={e => onChange(i, 'INCOME', e.target.value)} />
-              </div>
-              <div>
-                <label style={labelStyle}>Expense (฿)</label>
-                <input style={inputStyle} type="number" value={tx.EXPENSE || 0}
-                  onChange={e => onChange(i, 'EXPENSE', e.target.value)} />
-              </div>
-              <div>
-                <label style={labelStyle}>Transfer (฿)</label>
-                <input style={inputStyle} type="number" value={tx.TRANSFER || 0}
-                  onChange={e => onChange(i, 'TRANSFER', e.target.value)} />
-              </div>
-              {/* Destination */}
-              <div>
-                <label style={labelStyle}>Destination</label>
-                <select style={inputStyle} value={tx.DESTINATION_ACCOUNT || ''}
-                  onChange={e => onChange(i, 'DESTINATION_ACCOUNT', e.target.value)}>
+              {[['DESCRIPTION','Description','1/-1'],['PAYEE_PAYER','Payee / Payer','1/-1'],
+                ['INCOME','Income (฿)',null],['EXPENSE','Expense (฿)',null],['TRANSFER','Transfer (฿)',null]].map(([f,lb,gc])=>(
+                <div key={f} style={gc?{gridColumn:gc}:{}}>
+                  <label style={lbl}>{lb}</label>
+                  <input style={inp} type={f.match(/INCOME|EXPENSE|TRANSFER/)?'number':'text'} value={tx[f]||0} onChange={e=>onChange(i,f,e.target.value)}/>
+                </div>
+              ))}
+              <div><label style={lbl}>Destination</label>
+                <select style={inp} value={tx.DESTINATION_ACCOUNT||''} onChange={e=>onChange(i,'DESTINATION_ACCOUNT',e.target.value)}>
                   <option value="">— None —</option>
-                  {ACCOUNTS.map(a => <option key={a}>{a}</option>)}
+                  {ACCOUNTS.map(a=><option key={a}>{a}</option>)}
                 </select>
               </div>
-              {/* Note */}
-              <div style={{ gridColumn: '1 / -1' }}>
-                <label style={labelStyle}>Note</label>
-                <input style={inputStyle} placeholder="Additional notes"
-                  value={tx.NOTE || ''}
-                  onChange={e => onChange(i, 'NOTE', e.target.value)} />
+              <div style={{gridColumn:'1/-1'}}><label style={lbl}>Note</label>
+                <input style={inp} placeholder="Additional notes" value={tx.NOTE||''} onChange={e=>onChange(i,'NOTE',e.target.value)}/>
               </div>
             </div>
-
-            {/* Flags */}
-            <div style={{ display: 'flex', gap: 16, marginTop: 10, flexWrap: 'wrap' }}>
-              {[['REIMBURSE','คืนเงิน'],['REPAY','เบิกได้'],['PAY_BACK','Pay Back']].map(([f, l]) => (
-                <label key={f} style={{ fontSize: 12, display: 'flex',
-                  alignItems: 'center', gap: 5, cursor: 'pointer', color: '#555' }}>
-                  <input type="checkbox" checked={tx[f] || false}
-                    onChange={e => onChange(i, f, e.target.checked)} />
-                  {l}
+            <div style={{display:'flex',gap:16,marginTop:10,flexWrap:'wrap'}}>
+              {[['REIMBURSE','คืนเงิน'],['REPAY','เบิกได้'],['PAY_BACK','Pay Back']].map(([f,l])=>(
+                <label key={f} style={{fontSize:12,display:'flex',alignItems:'center',gap:5,cursor:'pointer',color:C.sub}}>
+                  <input type="checkbox" checked={tx[f]||false} onChange={e=>onChange(i,f,e.target.checked)}/>{l}
                 </label>
               ))}
             </div>
           </div>
         ))}
       </div>
-
-      {/* Save button */}
-      {!saved && status === 'done' && (
-        <button onClick={onSave} disabled={saving}
-          style={{ marginTop: 12, padding: '12px 0', borderRadius: 10, border: 'none',
-            background: saving ? '#e0e7ff' : '#667eea', color: '#fff',
-            fontWeight: 700, fontSize: 14, cursor: saving ? 'default' : 'pointer',
-            width: '100%', transition: 'background 0.2s' }}>
-          {saving ? '⏳ Saving...' : '💾 Save This Slip'}
-        </button>
+      {!saved && status==='done' && (
+        <div style={{display:'flex',flexDirection:'column',gap:8,marginTop:12}}>
+          {txs.map((tx,i)=>(
+            <button key={i} onClick={()=>onSave(i)} disabled={saving||tx._saved}
+              style={{padding:'10px 0',borderRadius:10,border:'none',
+                background:tx._saved?'#dcfce7':saving?C.border:C.teal,
+                color:tx._saved?'#16a34a':'#fff',fontWeight:700,fontSize:13,
+                cursor:(saving||tx._saved)?'default':'pointer',width:'100%',transition:'background 0.2s'}}>
+              {tx._saved ? `✅ Item ${i+1} Saved` : saving===i ? '⏳ Saving...' : txs.length>1 ? `💾 Save Item ${i+1}` : '💾 Save This Slip'}
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );
 }
 
-const labelStyle = { fontSize: 11, fontWeight: 600, color: '#888',
-  textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 4 };
-const inputStyle = { width: '100%', padding: '7px 10px', borderRadius: 7,
-  border: '1px solid #dde', fontSize: 13, background: '#fff',
-  boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit' };
+export default function Upload() {
+  const [slips,setSlips] = useState([]);
+  const [current,setCurrent] = useState(0);
+  const [provKey,setProvKey] = useState(()=>localStorage.getItem('ai_provider')||'claude-sonnet');
+  const [isMobile,setIsMobile] = useState(window.innerWidth<=900);
+  useEffect(()=>{ const h=()=>setIsMobile(window.innerWidth<=900); window.addEventListener('resize',h); return ()=>window.removeEventListener('resize',h); },[]);
 
-// ================================================================
-// Main Upload component
-// ================================================================
-function Upload() {
-  const [slips, setSlips] = useState([]);
-  const [current, setCurrent] = useState(0);
-  const [providerKey, setProviderKey] = useState(
-    () => localStorage.getItem('ai_provider') || 'claude-sonnet'
-  );
+  useEffect(()=>{ localStorage.setItem('ai_provider',provKey); },[provKey]);
 
-  const provider = PROVIDERS[providerKey];
-
-  // Sync provider preference
-  useEffect(() => {
-    localStorage.setItem('ai_provider', providerKey);
-  }, [providerKey]);
-
-  // Add new files
-  const onDrop = useCallback((acceptedFiles) => {
-    const newSlips = acceptedFiles.map(file => ({
-      id: Math.random().toString(36).slice(2),
-      file,
-      preview: URL.createObjectURL(file),
-      status: 'pending',   // pending | analyzing | done | error | saved
-      transactions: [],
-      error: null,
-      saving: false,
-      saved: false,
-    }));
-    setSlips(prev => {
-      const updated = [...prev, ...newSlips];
-      setCurrent(prev.length); // jump to first new slip
-      return updated;
-    });
-    // Auto-analyze all new slips simultaneously
-    newSlips.forEach(slip => analyzeSlip(slip.id, slip.file));
-  }, [providerKey]);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop, accept: { 'image/*': [] }, multiple: true,
-  });
-
-  const analyzeSlip = async (id, file) => {
-    setSlips(prev => prev.map(s => s.id === id
-      ? { ...s, status: 'analyzing' } : s));
+  const doAnalyze = async (id, file, b64, mime) => {
+    setSlips(p=>p.map(s=>s.id===id?{...s,status:'analyzing'}:s));
     try {
-      const txs = await analyzeImage(providerKey, file);
-      setSlips(prev => prev.map(s => s.id === id
-        ? { ...s, status: 'done', transactions: txs } : s));
-    } catch (err) {
-      setSlips(prev => prev.map(s => s.id === id
-        ? { ...s, status: 'error', error: err.message } : s));
+      // Use pre-read b64 if available (mobile), otherwise read from file
+      const txs = b64
+        ? await analyzeImageFromB64(provKey, b64, mime||'image/jpeg')
+        : await analyzeImage(provKey, file);
+      setSlips(p=>p.map(s=>s.id===id?{...s,status:'done',transactions:txs}:s));
     }
+    catch(err){ setSlips(p=>p.map(s=>s.id===id?{...s,status:'error',error:err.message}:s)); }
   };
 
-  const handleChange = (slipId, txIndex, field, value) => {
-    setSlips(prev => prev.map(s => {
-      if (s.id !== slipId) return s;
-      const txs = s.transactions.map((tx, i) =>
-        i === txIndex ? { ...tx, [field]: value } : tx);
-      return { ...s, transactions: txs };
-    }));
-  };
-
-  const handleSave = async (slipId) => {
-    const slip = slips.find(s => s.id === slipId);
-    if (!slip) return;
-
-    setSlips(prev => prev.map(s => s.id === slipId ? { ...s, saving: true } : s));
-
-    try {
-      const imageBase64 = await new Promise((res) => {
-        const reader = new FileReader();
-        reader.onload = () => res(reader.result.split(',')[1]);
-        reader.readAsDataURL(slip.file);
+  const onDrop = useCallback(async (files)=>{
+    const ns = await Promise.all(files.map(async f => {
+      // Read file immediately before any async gap (mobile security requirement)
+      const b64 = await new Promise((res,rej)=>{
+        const rd=new FileReader();
+        rd.onload=()=>res(rd.result.split(',')[1]);
+        rd.onerror=(e)=>rej(new Error('File read failed: ' + (e?.target?.error?.message||'unknown')));
+        rd.readAsDataURL(f);
       });
-      const imageMime = slip.file.type;
+      return {
+        id: Math.random().toString(36).slice(2),
+        file: f,
+        b64,           // store base64 immediately
+        mime: f.type||'image/jpeg',
+        preview: URL.createObjectURL(f),
+        status: 'pending',
+        transactions: [],
+        error: null,
+        saving: false,
+        saved: false,
+      };
+    }));
+    setSlips(p=>{ setCurrent(p.length); return [...p,...ns]; });
+    ns.forEach(s=>doAnalyze(s.id, s.file, s.b64, s.mime));
+  },[provKey]);
 
-      for (let i = 0; i < slip.transactions.length; i++) {
-        const tx = { ...slip.transactions[i] };
-        if (tx.TYPE?.endsWith('?')) tx.TYPE = tx.TYPE.slice(0, -1).trim();
-        await saveTransaction(tx, i === 0 ? imageBase64 : null, i === 0 ? imageMime : null);
+  const {getRootProps,getInputProps,isDragActive}=useDropzone({onDrop,accept:{'image/*':[]},multiple:true});
+
+  const handleChange=(sid,ti,f,v)=>setSlips(p=>p.map(s=>s.id!==sid?s:{...s,transactions:s.transactions.map((tx,i)=>i===ti?{...tx,[f]:v}:tx)}));
+
+  const handleSave=async(sid, itemIndex)=>{
+    const slip=slips.find(s=>s.id===sid); if(!slip) return;
+    const isFirst = itemIndex===0 || itemIndex===undefined;
+    setSlips(p=>p.map(s=>s.id===sid?{...s,saving:itemIndex}:s));
+    try {
+      const b64 = slip.b64 || await new Promise((res,rej)=>{const rd=new FileReader();rd.onload=()=>res(rd.result.split(',')[1]);rd.onerror=()=>rej(new Error('File read failed'));rd.readAsDataURL(slip.file);});
+      const mime = slip.mime || slip.file?.type || 'image/jpeg';
+
+      if (itemIndex !== undefined) {
+        // Save single item
+        const tx = {...slip.transactions[itemIndex]};
+        if(tx.TYPE?.endsWith('?')) tx.TYPE=tx.TYPE.slice(0,-1).trim();
+        // Strip ? from other fields in case AI misbehaves
+        if(tx.ACCOUNT?.endsWith('?')) tx.ACCOUNT=tx.ACCOUNT.slice(0,-1).trim();
+        if(tx.DATE?.endsWith('?')) tx.DATE=tx.DATE.slice(0,-1).trim();
+
+        // If slip already has a receiptUrl from a previous save, reuse it
+        // Otherwise upload image (first save of this slip)
+        const alreadySavedOne = slip.transactions.some((t,i) => i!==itemIndex && t._saved);
+        let receiptUrl = slip.receiptUrl || null;
+
+        if (!alreadySavedOne && !receiptUrl) {
+          // First item saved — upload image, get URL back
+          const res = await saveTransaction(tx, b64, mime);
+          receiptUrl = res?.RECEIPT || '';
+          // Store receiptUrl on slip so next items reuse it
+          setSlips(p=>p.map(s=>s.id===sid?{...s,receiptUrl}:s));
+        } else {
+          // Reuse existing receipt URL for all subsequent items
+          tx.RECEIPT = receiptUrl || '';
+          await saveTransaction(tx, null, null);
+        }
+
+        // Mark this item as saved
+        const updatedTxs = slip.transactions.map((t,i) => i===itemIndex ? {...t, _saved:true, RECEIPT: receiptUrl||''} : t);
+        const allSaved = updatedTxs.every(t => t._saved);
+        setSlips(p=>p.map(s=>s.id===sid?{...s,saving:false,transactions:updatedTxs,saved:allSaved,status:allSaved?'saved':s.status}:s));
+      } else {
+        // Save all
+        for(let i=0;i<slip.transactions.length;i++){
+          const tx={...slip.transactions[i]};
+          if(tx.TYPE?.endsWith('?')) tx.TYPE=tx.TYPE.slice(0,-1).trim();
+          if(tx.ACCOUNT?.endsWith('?')) tx.ACCOUNT=tx.ACCOUNT.slice(0,-1).trim();
+          if(tx.DATE?.endsWith('?')) tx.DATE=tx.DATE.slice(0,-1).trim();
+          await saveTransaction(tx,i===0?b64:null,i===0?mime:null);
+        }
+        setSlips(p=>p.map(s=>s.id===sid?{...s,saving:false,saved:true,status:'saved'}:s));
       }
-
-      setSlips(prev => prev.map(s => s.id === slipId
-        ? { ...s, saving: false, saved: true, status: 'saved' } : s));
-    } catch (err) {
-      setSlips(prev => prev.map(s => s.id === slipId
-        ? { ...s, saving: false, error: err.message, status: 'error' } : s));
-    }
+    } catch(err){ setSlips(p=>p.map(s=>s.id===sid?{...s,saving:false,error:err.message,status:'error'}:s)); }
   };
 
-  const currentSlip = slips[current];
+  const cur=slips[current];
+  const navBtn={width:32,height:32,borderRadius:8,border:`1px solid ${C.border}`,background:'#fff',cursor:'pointer',fontSize:16,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',color:C.teal,padding:0};
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, height: '100%' }}>
-
+    <div style={{display:'flex',flexDirection:'column',gap:16}}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:12}}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: '#1e1b4b' }}>
-            📤 Upload Slip
-          </h1>
-          <p style={{ margin: 0, fontSize: 13, color: '#888', marginTop: 2 }}>
-            Upload e-slips and let AI extract transaction details
-          </p>
+          <h1 style={{margin:0,fontSize:24,fontWeight:800,color:C.text}}>Upload Slip</h1>
+          <p style={{margin:'2px 0 0',fontSize:13,color:C.sub}}>Upload e-slips and let AI extract transaction details</p>
         </div>
-
-        {/* AI provider badge + switcher */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 12, color: '#888' }}>AI:</span>
-          <select value={providerKey}
-            onChange={e => setProviderKey(e.target.value)}
-            style={{ fontSize: 12, padding: '5px 10px', borderRadius: 20,
-              border: '1px solid #dde', background: '#f0f0ff',
-              color: '#667eea', fontWeight: 700, cursor: 'pointer', outline: 'none' }}>
-            {Object.entries(PROVIDERS).map(([k, v]) => (
-              <option key={k} value={k}>{v.label}</option>
-            ))}
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <span style={{fontSize:12,color:C.sub,fontWeight:600}}>AI:</span>
+          <select value={provKey} onChange={e=>setProvKey(e.target.value)}
+            style={{fontSize:12,padding:'5px 12px',borderRadius:20,border:`1px solid ${C.border}`,background:C.muted,color:C.teal,fontWeight:700,cursor:'pointer',outline:'none'}}>
+            {Object.entries(PROVIDERS).map(([k,v])=><option key={k} value={k}>{v.label}</option>)}
           </select>
         </div>
       </div>
 
-      {/* Slip navigator */}
-      {slips.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8,
-          background: '#f8f9ff', borderRadius: 12, padding: '10px 16px',
-          border: '1px solid #e8eaff', flexWrap: 'wrap' }}>
-
-          <button onClick={() => setCurrent(c => Math.max(0, c - 1))}
-            disabled={current === 0}
-            style={{ ...navBtn, opacity: current === 0 ? 0.3 : 1 }}>←</button>
-
-          {/* Status dots */}
-          <div style={{ display: 'flex', gap: 6, flex: 1, flexWrap: 'wrap' }}>
-            {slips.map((s, i) => {
-              const st = STATUS[s.status];
-              return (
-                <button key={s.id} onClick={() => setCurrent(i)}
-                  style={{
-                    padding: '4px 10px', borderRadius: 20, border: 'none',
-                    background: i === current ? st.color : '#e8eaff',
-                    color: i === current ? '#fff' : '#888',
-                    fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                    transition: 'all 0.15s',
-                    outline: i === current ? `2px solid ${st.color}` : 'none',
-                    outlineOffset: 1,
-                  }}>
-                  {st.icon} {i + 1}
-                </button>
-              );
+      {/* Navigator */}
+      {slips.length>0 && (
+        <div style={{display:'flex',alignItems:'center',gap:8,background:C.muted,borderRadius:12,padding:'10px 16px',border:`1px solid ${C.border}`,flexWrap:'wrap'}}>
+          <button onClick={()=>setCurrent(c=>Math.max(0,c-1))} disabled={current===0} style={{...navBtn,opacity:current===0?.3:1}}>←</button>
+          <div style={{display:'flex',gap:6,flex:1,flexWrap:'wrap'}}>
+            {slips.map((s,i)=>{
+              const st=ST[s.status];
+              return <button key={s.id} onClick={()=>setCurrent(i)}
+                style={{padding:'4px 10px',borderRadius:20,border:'none',background:i===current?st.color:'#e2f8f5',color:i===current?'#fff':C.sub,fontSize:12,fontWeight:600,cursor:'pointer',transition:'all .15s',outline:i===current?`2px solid ${st.color}`:'none',outlineOffset:1}}>
+                {st.icon} {i+1}
+              </button>;
             })}
           </div>
-
-          <button onClick={() => setCurrent(c => Math.min(slips.length - 1, c + 1))}
-            disabled={current === slips.length - 1}
-            style={{ ...navBtn, opacity: current === slips.length - 1 ? 0.3 : 1 }}>→</button>
-
-          <span style={{ fontSize: 12, color: '#888', marginLeft: 4 }}>
-            {current + 1} / {slips.length}
-          </span>
+          <button onClick={()=>setCurrent(c=>Math.min(slips.length-1,c+1))} disabled={current===slips.length-1} style={{...navBtn,opacity:current===slips.length-1?.3:1}}>→</button>
+          <span style={{fontSize:12,color:C.sub,marginLeft:4}}>{current+1}/{slips.length}</span>
         </div>
       )}
 
-      {/* Main area */}
-      {slips.length === 0 ? (
-        /* Empty state — full dropzone */
-        <div {...getRootProps()} style={{
-          border: '2px dashed #c7d2fe', borderRadius: 16, padding: 64,
-          textAlign: 'center', cursor: 'pointer', background: '#f8f9ff',
-          transition: 'all 0.2s',
-          ...(isDragActive ? { background: '#e0e7ff', borderColor: '#667eea' } : {}),
-        }}>
-          <input {...getInputProps()} />
-          <div style={{ fontSize: 56 }}>📎</div>
-          <p style={{ margin: '12px 0 4px', fontWeight: 700, color: '#1e1b4b', fontSize: 16 }}>
-            {isDragActive ? 'Drop slips here...' : 'Drag & drop your e-slips here'}
-          </p>
-          <p style={{ margin: 0, color: '#888', fontSize: 13 }}>
-            or <strong style={{ color: '#667eea' }}>click to browse</strong> — supports multiple files
-          </p>
-          <p style={{ margin: '8px 0 0', fontSize: 12, color: '#aaa' }}>JPG · PNG · WEBP</p>
+      {/* Main */}
+      {slips.length===0 ? (
+        <div {...getRootProps()} style={{border:`2px dashed ${isDragActive?C.teal:C.border}`,borderRadius:16,padding:64,textAlign:'center',cursor:'pointer',background:isDragActive?C.muted:'#fff',transition:'all .2s'}}>
+          <input {...getInputProps()}/>
+          <div style={{fontSize:56}}>📎</div>
+          <p style={{margin:'12px 0 4px',fontWeight:700,color:C.text,fontSize:16}}>{isDragActive?'Drop slips here...':'Drag & drop your e-slips here'}</p>
+          <p style={{margin:0,color:C.sub,fontSize:13}}>or <strong style={{color:C.teal}}>click to browse</strong> — supports multiple files</p>
+          <p style={{margin:'8px 0 0',fontSize:12,color:'#aaa'}}>JPG · PNG · WEBP</p>
         </div>
       ) : (
-        /* Side-by-side view */
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr',
-          gap: 16, minHeight: 600, alignItems: 'start' }}>
-
-          {/* LEFT — slip image (sticky) */}
-          <div style={{ position: 'sticky', top: 16 }}>
-            <div style={{ background: '#fff', borderRadius: 14, overflow: 'hidden',
-              border: '1px solid #e8eaff', boxShadow: '0 2px 12px rgba(102,126,234,0.08)' }}>
-              {currentSlip && (
-                <img src={currentSlip.preview} alt="slip"
-                  style={{ width: '100%', display: 'block',
-                    maxHeight: '80vh', objectFit: 'contain',
-                    background: '#f8f8f8' }} />
-              )}
-            </div>
-
-            {/* Status label under image */}
-            {currentSlip && (
-              <div style={{ textAlign: 'center', marginTop: 10, fontSize: 13,
-                color: STATUS[currentSlip.status].color, fontWeight: 600 }}>
-                {STATUS[currentSlip.status].icon} {STATUS[currentSlip.status].label}
-                {currentSlip.status === 'done' && currentSlip.transactions.length > 1 &&
-                  ` — ${currentSlip.transactions.length} items`}
+        <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'1fr 1fr',gap:16,minHeight:isMobile?'auto':600,alignItems:'start'}}>
+          {/* Image preview */}
+          {cur && (
+            <div style={{position:isMobile?'relative':'sticky',top:isMobile?'auto':16}}>
+              <div style={{background:'#fff',borderRadius:14,overflow:'hidden',border:`1px solid ${C.border}`,boxShadow:'0 2px 12px rgba(13,148,136,0.08)'}}>
+                {cur.b64
+                  ? <img src={`data:${cur.mime||'image/jpeg'};base64,${cur.b64}`} alt="slip" style={{width:'100%',display:'block',maxHeight:isMobile?'50vh':'80vh',objectFit:'contain',background:'#f8f8f8'}}/>
+                  : cur.preview
+                    ? <img src={cur.preview} alt="slip" style={{width:'100%',display:'block',maxHeight:isMobile?'50vh':'80vh',objectFit:'contain',background:'#f8f8f8'}}/>
+                    : <div style={{height:200,display:'flex',alignItems:'center',justifyContent:'center',color:C.sub,fontSize:48}}>🧾</div>
+                }
               </div>
-            )}
-          </div>
-
-          {/* RIGHT — transaction form */}
-          <div style={{ background: '#fff', borderRadius: 14, padding: 20,
-            border: '1px solid #e8eaff',
-            boxShadow: '0 2px 12px rgba(102,126,234,0.08)',
-            minHeight: 400 }}>
-            {currentSlip && (
-              <SlipForm
-                slip={currentSlip}
-                onChange={(txIndex, field, value) =>
-                  handleChange(currentSlip.id, txIndex, field, value)}
-                onSave={() => handleSave(currentSlip.id)}
-              />
-            )}
+              <div style={{textAlign:'center',marginTop:10,fontSize:13,color:ST[cur.status].color,fontWeight:600}}>
+                {ST[cur.status].icon} {ST[cur.status].label}
+                {cur.status==='done'&&cur.transactions.length>1&&` — ${cur.transactions.length} items`}
+              </div>
+            </div>
+          )}
+          {/* Form */}
+          <div style={{background:'#fff',borderRadius:14,padding:20,border:`1px solid ${C.border}`,boxShadow:'0 2px 12px rgba(13,148,136,0.08)',minHeight:400}}>
+            {cur && <SlipForm slip={cur} onChange={(ti,f,v)=>handleChange(cur.id,ti,f,v)} onSave={(i)=>handleSave(cur.id,i)}/>}
           </div>
         </div>
       )}
 
-      {/* Bottom dropzone (when slips already loaded) */}
-      {slips.length > 0 && (
-        <div {...getRootProps()} style={{
-          border: '2px dashed #c7d2fe', borderRadius: 12, padding: '16px 24px',
-          textAlign: 'center', cursor: 'pointer', background: '#f8f9ff',
-          fontSize: 13, color: '#888', transition: 'all 0.2s',
-          ...(isDragActive ? { background: '#e0e7ff', borderColor: '#667eea', color: '#667eea' } : {}),
-        }}>
-          <input {...getInputProps()} />
-          {isDragActive ? '📎 Drop to add more slips...'
-            : '➕ Drop more slips or click to add'}
+      {slips.length>0 && (
+        <div {...getRootProps()} style={{border:`2px dashed ${isDragActive?C.teal:C.border}`,borderRadius:12,padding:'16px 24px',textAlign:'center',cursor:'pointer',background:isDragActive?C.muted:'#fff',fontSize:13,color:C.sub,transition:'all .2s'}}>
+          <input {...getInputProps()}/>
+          {isDragActive?'📎 Drop to add more slips...':'➕ Drop more slips or click to add'}
         </div>
       )}
     </div>
   );
 }
-
-const navBtn = {
-  width: 32, height: 32, borderRadius: 8, border: '1px solid #dde',
-  background: '#fff', cursor: 'pointer', fontSize: 16, fontWeight: 700,
-  display: 'flex', alignItems: 'center', justifyContent: 'center',
-  color: '#667eea', padding: 0,
-};
-
-export default Upload;
