@@ -199,6 +199,22 @@ export async function pullFromSheet() {
   setAll(merged);
   localStorage.setItem(LS_LAST_PULL, String(Date.now()));
 
+  // Pull quick templates from sheet
+  try {
+    const templates = await gs.fetchQuickTemplates();
+    if (templates && templates.length > 0) {
+      localStorage.setItem('quickTemplates', JSON.stringify(templates));
+    }
+  } catch (e) { /* ignore */ }
+
+  // Pull initial balances from sheet
+  try {
+    const balances = await gs.fetchInitialBalances();
+    if (balances && Object.keys(balances).length > 0) {
+      localStorage.setItem('initialBalances', JSON.stringify(balances));
+    }
+  } catch (e) { /* ignore */ }
+
   // Drain queue now — this will delete tombstoned records from sheet
   trySync();
 
@@ -210,6 +226,17 @@ export async function bootstrapSync() {
   try { await pullFromSheet(); } catch (e) { /* offline */ }
   trySync();
   window.addEventListener('online', trySync);
+}
+
+// ---------- initial balances sync ----------
+export async function saveQuickTemplatesToSheet(templates) {
+  if (!isSyncOn() || !navigator.onLine) return;
+  try { await gs.saveQuickTemplates(templates); } catch (e) { /* ignore */ }
+}
+
+export async function saveInitialBalancesToSheet(balances) {
+  if (!isSyncOn() || !navigator.onLine) return;
+  try { await gs.saveInitialBalances(balances); } catch (e) { /* ignore */ }
 }
 
 // ---------- mapping: app record -> Apps Script payload ----------

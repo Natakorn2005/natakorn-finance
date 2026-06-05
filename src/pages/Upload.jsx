@@ -11,6 +11,8 @@ function checkDuplicate(tx) {
       t.DATE === tx.DATE &&
       t.TIME === tx.TIME &&
       t.ACCOUNT === tx.ACCOUNT &&
+      t.UID !== tx.UID &&  // ignore self
+      t._fromCurrentSession !== true &&  // ignore same session saves
       (
         (Number(t.INCOME) === Number(tx.INCOME) && Number(tx.INCOME) > 0) ||
         (Number(t.EXPENSE) === Number(tx.EXPENSE) && Number(tx.EXPENSE) > 0) ||
@@ -154,7 +156,7 @@ const ST = {
 const lbl = { fontSize:11,fontWeight:700,color:C.sub,textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4 };
 const inp = { width:'100%',padding:'7px 10px',borderRadius:7,border:`1.5px solid ${C.border}`,fontSize:13,background:'#fff',boxSizing:'border-box',outline:'none',fontFamily:'inherit',color:C.text };
 
-function SlipForm({ slip, onChange, onSave }) {
+function SlipForm({ slip, onChange, onSave, onRetry }) {
   const { transactions:txs, status, error, saving, saved } = slip;
   if (status==='pending') return (
     <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',color:C.sub,gap:12}}>
@@ -173,6 +175,9 @@ function SlipForm({ slip, onChange, onSave }) {
     <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',gap:12,padding:24}}>
       <div style={{fontSize:48}}>❌</div>
       <p style={{color:'#ef4444',margin:0,textAlign:'center',fontSize:14}}>{error}</p>
+      <button onClick={onRetry} style={{marginTop:8,padding:'10px 24px',borderRadius:10,border:'none',background:'#0d9488',color:'#fff',fontWeight:700,fontSize:13,cursor:'pointer'}}>
+        🔄 Retry
+      </button>
     </div>
   );
   return (
@@ -285,12 +290,23 @@ export default function Upload() {
       };
     }));
     setSlips(p=>{ setCurrent(p.length); return [...p,...ns]; });
-    ns.forEach(s=>doAnalyze(s.id, s.file, s.b64, s.mime));
+    // Stagger analysis to avoid API rate limits
+    // Gemini free = 15 RPM (4000ms gap), Claude Tier1 = 50 RPM (1200ms gap)
+    const delay = provKey.startsWith('gemini') ? 6000 : 2500;
+    ns.forEach((s, i) => {
+      setTimeout(() => doAnalyze(s.id, s.file, s.b64, s.mime), i * delay);
+    });
   },[provKey]);
 
   const {getRootProps,getInputProps,isDragActive}=useDropzone({onDrop,accept:{'image/*':[]},multiple:true});
 
   const handleChange=(sid,ti,f,v)=>setSlips(p=>p.map(s=>s.id!==sid?s:{...s,transactions:s.transactions.map((tx,i)=>i===ti?{...tx,[f]:v}:tx)}));
+
+  const handleRetry=(sid)=>{
+    const slip=slips.find(s=>s.id===sid); if(!slip) return;
+    setSlips(p=>p.map(s=>s.id===sid?{...s,status:'pending',error:null}:s));
+    setTimeout(()=>doAnalyze(sid, slip.file, slip.b64, slip.mime), 100);
+  };
 
   const handleSave=async(sid, itemIndex)=>{
     const slip=slips.find(s=>s.id===sid); if(!slip) return;
@@ -326,7 +342,7 @@ export default function Upload() {
         }
 
         // Mark this item as saved
-        const updatedTxs = slip.transactions.map((t,i) => i===itemIndex ? {...t, _saved:true, RECEIPT: receiptUrl||''} : t);
+        const updatedTxs = slip.transactions.map((t,i) => i===itemIndex ? {...t, _saved:true, _fromCurrentSession:true, RECEIPT: receiptUrl||''} : t);
         const allSaved = updatedTxs.every(t => t._saved);
         setSlips(p=>p.map(s=>s.id===sid?{...s,saving:false,transactions:updatedTxs,saved:allSaved,status:allSaved?'saved':s.status}:s));
       } else {
@@ -411,7 +427,7 @@ export default function Upload() {
           )}
           {/* Form */}
           <div style={{background:'#fff',borderRadius:14,padding:20,border:`1px solid ${C.border}`,boxShadow:'0 2px 12px rgba(13,148,136,0.08)',minHeight:400}}>
-            {cur && <SlipForm slip={cur} onChange={(ti,f,v)=>handleChange(cur.id,ti,f,v)} onSave={(i)=>handleSave(cur.id,i)}/>}
+            {cur && <SlipForm slip={cur} onChange={(ti,f,v)=>handleChange(cur.id,ti,f,v)} onSave={(i)=>handleSave(cur.id,i)} onRetry={()=>handleRetry(cur.id)}/>}
           </div>
         </div>
       )}

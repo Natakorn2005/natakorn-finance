@@ -83,3 +83,21 @@ export function normalizeFromSheet(row) {
 }
 
 export const syncFromSheet = fetchAll;
+
+export function saveInitialBalances(balances) {
+  return call({ action: 'saveInitialBalances', balances });
+}
+
+export function saveQuickTemplates(templates) {
+  return call({ action: 'saveQuickTemplates', templates });
+}
+
+export async function fetchQuickTemplates() {
+  const data = await callGet('getQuickTemplates');
+  return data.templates || [];
+}
+
+export async function fetchInitialBalances() {
+  const data = await callGet('getInitialBalances');
+  return data.balances || {};
+}

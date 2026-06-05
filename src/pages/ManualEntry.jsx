@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ACCOUNTS, EXPENSE_TYPES, INCOME_TYPES, LS_SYNC_ON } from '../constants';
-import { saveTransaction } from '../services/transactionService';
+import { saveTransaction, saveQuickTemplatesToSheet } from '../services/transactionService';
 
 const C = { teal:'#0d9488', tealLight:'#2dd4bf', green:'#4ade80', muted:'#f0fdf4', border:'#d1fae5', text:'#134e4a', sub:'#6b7280' };
 const card = { background:'#fff', borderRadius:16, padding:'20px 24px', boxShadow:'0 1px 8px rgba(13,148,136,0.08)', marginBottom:24 };
@@ -32,6 +32,39 @@ export default function ManualEntry() {
   }, [mode]);
 
   const hc = (f,v) => setForm(p => ({ ...p, [f]: v }));
+
+  // Quick Templates
+  const [templates, setTemplates] = useState(() => JSON.parse(localStorage.getItem('quickTemplates') || '[]'));
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+
+  const saveTemplate = () => {
+    if (!templateName.trim() || !form.amount) return;
+    const t = { id: Date.now(), name: templateName.trim(), mode, form: {...form} };
+    const updated = [...templates, t];
+    setTemplates(updated);
+    localStorage.setItem('quickTemplates', JSON.stringify(updated));
+    saveQuickTemplatesToSheet(updated);
+    setTemplateName(''); setShowSaveTemplate(false);
+  };
+
+  const applyTemplate = (t) => {
+    const now = new Date();
+    setMode(t.mode);
+    setForm({ ...t.form,
+      date: `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`,
+      time: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
+    });
+    setShowTemplates(false);
+  };
+
+  const deleteTemplate = (id) => {
+    const updated = templates.filter(t => t.id !== id);
+    setTemplates(updated);
+    localStorage.setItem('quickTemplates', JSON.stringify(updated));
+    saveQuickTemplatesToSheet(updated);
+  };
 
   const handleSubmit = async () => {
     if (!form.amount || !form.date || !form.time) { alert('Please fill in date, time and amount.'); return; }
@@ -112,6 +145,64 @@ export default function ManualEntry() {
         <p style={{margin:'2px 0 0',fontSize:13,color:C.sub}}>Record a transaction manually without a slip</p>
       </div>
       <div style={{maxWidth:560,margin:'0 auto'}}>
+        {/* Quick Templates */}
+        <div style={{marginBottom:16}}>
+          <div style={{display:'flex',gap:8,marginBottom:showTemplates?8:0}}>
+            <button onClick={()=>setShowTemplates(p=>!p)}
+              style={{flex:1,padding:'10px 0',borderRadius:10,border:`1px solid ${C.border}`,background:showTemplates?C.teal:C.muted,color:showTemplates?'#fff':C.teal,fontWeight:700,fontSize:13,cursor:'pointer'}}>
+              ⚡ Quick Templates {templates.length>0&&`(${templates.length})`}
+            </button>
+            <button onClick={()=>setShowSaveTemplate(p=>!p)}
+              style={{padding:'10px 16px',borderRadius:10,border:`1px solid ${C.border}`,background:C.muted,color:C.teal,fontWeight:700,fontSize:13,cursor:'pointer'}}>
+              💾 Save Current
+            </button>
+          </div>
+
+          {/* Save template form */}
+          {showSaveTemplate && (
+            <div style={{background:'#fff',borderRadius:10,padding:14,border:`1px solid ${C.border}`,marginBottom:8}}>
+              <div style={{fontSize:12,fontWeight:700,color:C.sub,marginBottom:8}}>TEMPLATE NAME</div>
+              <div style={{display:'flex',gap:8}}>
+                <input value={templateName} onChange={e=>setTemplateName(e.target.value)}
+                  placeholder="e.g. กาแฟ Amazon, ค่ารถไฟฟ้า..."
+                  style={{flex:1,padding:'8px 12px',borderRadius:8,border:`1.5px solid ${C.border}`,fontSize:13,outline:'none',fontFamily:'inherit',color:C.text}}/>
+                <button onClick={saveTemplate}
+                  style={{padding:'8px 16px',borderRadius:8,border:'none',background:C.teal,color:'#fff',fontWeight:700,fontSize:13,cursor:'pointer'}}>
+                  Save
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Template list */}
+          {showTemplates && (
+            <div style={{background:'#fff',borderRadius:10,border:`1px solid ${C.border}`,overflow:'hidden'}}>
+              {templates.length === 0 ? (
+                <div style={{padding:20,textAlign:'center',color:C.sub,fontSize:13}}>
+                  No templates yet. Fill in a transaction and click "💾 Save Current".
+                </div>
+              ) : templates.map(t => (
+                <div key={t.id} style={{display:'flex',alignItems:'center',gap:10,padding:'12px 14px',borderBottom:`1px solid ${C.muted}`}}>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:700,fontSize:13,color:C.text}}>{t.name}</div>
+                    <div style={{fontSize:11,color:C.sub,marginTop:2}}>
+                      {t.mode} · {t.form.account} · ฿{t.form.amount} · {t.form.category}
+                    </div>
+                  </div>
+                  <button onClick={()=>applyTemplate(t)}
+                    style={{padding:'6px 14px',borderRadius:8,border:'none',background:C.teal,color:'#fff',fontWeight:700,fontSize:12,cursor:'pointer'}}>
+                    Use
+                  </button>
+                  <button onClick={()=>deleteTemplate(t.id)}
+                    style={{padding:'6px 10px',borderRadius:8,border:'none',background:'#fef2f2',color:'#ef4444',fontWeight:700,fontSize:12,cursor:'pointer'}}>
+                    🗑️
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Mode switcher */}
         <div style={{display:'flex',gap:10,marginBottom:24}}>
           {['EXPENSE','TRANSFER','INCOME'].map(m=>{

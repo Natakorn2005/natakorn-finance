@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ACCOUNT_LIST } from '../constants';
-import { getAll, reindexLocal } from '../services/transactionService';
+import { getAll, reindexLocal, saveInitialBalancesToSheet } from '../services/transactionService';
 
 const C = {
   teal:      '#0d9488',
@@ -68,6 +68,7 @@ function Accounts() {
     Object.keys(tempInitial).forEach(k => { parsed[k] = parseFloat(tempInitial[k]) || 0; });
     setInitialBalances(parsed);
     localStorage.setItem('initialBalances', JSON.stringify(parsed));
+    saveInitialBalancesToSheet(parsed);
     setEditingInitial(false);
   };
 
