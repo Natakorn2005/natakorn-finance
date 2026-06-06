@@ -34,7 +34,7 @@ export default function EditTransaction() {
       account:tx.ACCOUNT||'เงินสด', destAccount:tx.DESTINATION_ACCOUNT||'KMA (บัญชีเล็ก)',
       category:tx.TYPE||TYPES[0], description:tx.DESCRIPTION||'', payee:tx.PAYEE_PAYER||'',
       reimburse:tx.REIMBURSE||false, repay:tx.REPAY||false, payBack:tx.PAY_BACK||false,
-      note:tx.NOTE||'', receipt:tx.RECEIPT||'' });
+      note:tx.NOTE||'', receipt:tx.RECEIPT||'', claimedFrom:tx.CLAIMED_FROM||'' });
   }, [navigate]);
 
   const hc = (f,v) => setForm(p=>({...p,[f]:v}));
@@ -52,7 +52,7 @@ export default function EditTransaction() {
       PAYEE_PAYER:form.payee||'', INCOME:mode==='INCOME'?amt:0,
       EXPENSE:mode==='EXPENSE'?amt:0, TRANSFER:mode==='TRANSFER'?amt:0,
       DESTINATION_ACCOUNT:mode==='TRANSFER'?form.destAccount:'',
-      NOTE:form.note||'', RECEIPT:form.receipt||'' };
+      NOTE:form.note||'', RECEIPT:form.receipt||'', CLAIMED_FROM:form.claimedFrom||'' };
     try {
       let b64=null,mime=null;
       if(imageFile){ b64=await new Promise(res=>{const rd=new FileReader();rd.onload=()=>res(rd.result.split(',')[1]);rd.readAsDataURL(imageFile);}); mime=imageFile.type; }
@@ -127,6 +127,13 @@ export default function EditTransaction() {
           {mode!=='TRANSFER'&&<div style={{marginBottom:16}}><label style={lbl}>Category</label>
             <select value={form.category} onChange={e=>hc('category',e.target.value)} style={inp}>{TYPES.map(t=><option key={t}>{t}</option>)}</select>
           </div>}
+          {form.repay && (
+            <div style={{marginBottom:16}}>
+              <label style={lbl}>Claimed From (org/company)</label>
+              <input type="text" value={form.claimedFrom||''} onChange={e=>hc('claimedFrom',e.target.value)}
+                placeholder="e.g. Mahidol University" style={inp}/>
+            </div>
+          )}
           {[['description','Description'],['payee','Payee / Payer'],['note','Note'],['receipt','Receipt URL']].map(([f,l])=>(
             <div key={f} style={{marginBottom:16}}><label style={lbl}>{l}</label>
               <input type="text" value={form[f]} onChange={e=>hc(f,e.target.value)} style={{...inp,color:f==='receipt'&&form.receipt?'#16a34a':undefined}}/>
@@ -143,7 +150,7 @@ export default function EditTransaction() {
           </div>
           {mode==='EXPENSE'&&(
             <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
-              {[['reimburse','💰 Reimbursable (คืนเงิน)'],['repay','📋 Repayable (เบิกได้)'],['payBack','↩️ Pay Back']].map(([f,l])=>(
+              {[['reimburse','🔄 Friend owes me / I owe friend (คืนเงิน)'],['repay','🏢 Claimable from org (เบิกได้)'],['payBack','💸 Debt — borrowed / lending']].map(([f,l])=>(
                 <label key={f} style={{display:'flex',alignItems:'center',gap:10,fontSize:14,cursor:'pointer',color:C.sub}}>
                   <input type="checkbox" checked={form[f]||false} onChange={e=>hc(f,e.target.checked)} style={{width:16,height:16}}/>{l}
                 </label>

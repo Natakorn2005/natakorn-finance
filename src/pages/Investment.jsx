@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAll } from '../services/transactionService';
+import { getAll, saveInvestmentsToSheet } from '../services/transactionService';
 
 const C = { teal:'#0d9488', muted:'#f0fdf4', border:'#d1fae5', text:'#134e4a', sub:'#6b7280' };
 const card = { background:'#fff', borderRadius:16, padding:'20px 24px', boxShadow:'0 1px 8px rgba(13,148,136,0.08)', marginBottom:16 };
@@ -27,7 +27,11 @@ export default function Investment() {
     setTxInvestments(txs);
   }, []);
 
-  const save = (u) => { setInvestments(u); localStorage.setItem('investments', JSON.stringify(u)); };
+  const save = (u) => {
+    setInvestments(u);
+    localStorage.setItem('investments', JSON.stringify(u));
+    saveInvestmentsToSheet(u);
+  };
 
   const handleAdd = () => {
     if (!newInv.name || !newInv.amount) return;

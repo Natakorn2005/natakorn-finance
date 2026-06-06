@@ -199,21 +199,20 @@ export async function pullFromSheet() {
   setAll(merged);
   localStorage.setItem(LS_LAST_PULL, String(Date.now()));
 
-  // Pull quick templates from sheet
-  try {
-    const templates = await gs.fetchQuickTemplates();
-    if (templates && templates.length > 0) {
-      localStorage.setItem('quickTemplates', JSON.stringify(templates));
-    }
-  } catch (e) { /* ignore */ }
-
-  // Pull initial balances from sheet
-  try {
-    const balances = await gs.fetchInitialBalances();
-    if (balances && Object.keys(balances).length > 0) {
-      localStorage.setItem('initialBalances', JSON.stringify(balances));
-    }
-  } catch (e) { /* ignore */ }
+  // Pull all special data from sheet
+  const specialPulls = [
+    { fn: gs.fetchInitialBalances, key: 'initialBalances',  check: d => d && Object.keys(d).length > 0 },
+    { fn: gs.fetchQuickTemplates,  key: 'quickTemplates',   check: d => d && d.length > 0 },
+    { fn: gs.fetchBudgetPlans,     key: 'budgetPlans',      check: d => d !== null && d !== undefined },
+    { fn: gs.fetchSavingsGoals,    key: 'savingsGoals',     check: d => d !== null && d !== undefined },
+    { fn: gs.fetchInvestments,     key: 'investments',      check: d => d !== null && d !== undefined },
+  ];
+  for (const { fn, key, check } of specialPulls) {
+    try {
+      const data = await fn();
+      if (check(data)) localStorage.setItem(key, JSON.stringify(data));
+    } catch (e) { /* ignore */ }
+  }
 
   // Drain queue now — this will delete tombstoned records from sheet
   trySync();
@@ -232,6 +231,21 @@ export async function bootstrapSync() {
 export async function saveQuickTemplatesToSheet(templates) {
   if (!isSyncOn() || !navigator.onLine) return;
   try { await gs.saveQuickTemplates(templates); } catch (e) { /* ignore */ }
+}
+
+export async function saveBudgetPlansToSheet(plans) {
+  if (!isSyncOn() || !navigator.onLine) return;
+  try { await gs.saveBudgetPlans(plans); } catch (e) { /* ignore */ }
+}
+
+export async function saveSavingsGoalsToSheet(goals) {
+  if (!isSyncOn() || !navigator.onLine) return;
+  try { await gs.saveSavingsGoals(goals); } catch (e) { /* ignore */ }
+}
+
+export async function saveInvestmentsToSheet(investments) {
+  if (!isSyncOn() || !navigator.onLine) return;
+  try { await gs.saveInvestments(investments); } catch (e) { /* ignore */ }
 }
 
 export async function saveInitialBalancesToSheet(balances) {
@@ -260,5 +274,6 @@ export function toSheet(t) {
     DESTINATION_ACCOUNT: t.DESTINATION_ACCOUNT || '',
     RECEIPT:             t.RECEIPT || '',
     NOTE:                t.NOTE || '',
+    CLAIMED_FROM:        t.CLAIMED_FROM || '',
   };
 }

@@ -48,7 +48,15 @@ export default function BudgetPlans() {
     setManualPaid(JSON.parse(localStorage.getItem('manualPaid')||'{}'));
   },[]);
 
-  const thisMonth=transactions.filter(tx=>{ if(!tx.DATE) return false; const p=tx.DATE.split('/'); return p.length===3&&`${p[2]}-${p[1]}`===monthKey; });
+  // Exclude REIMBURSE and REPAY transactions — those will be paid back so don't count as personal expense
+  const thisMonth=transactions.filter(tx=>{
+    if(!tx.DATE) return false;
+    const p=tx.DATE.split('/');
+    if(!(p.length===3&&`${p[2]}-${p[1]}`===monthKey)) return false;
+    if(tx.REIMBURSE===true||tx.REIMBURSE==='true') return false;
+    if(tx.REPAY===true||tx.REPAY==='true') return false;
+    return true;
+  });
   const spentMap={}; thisMonth.forEach(tx=>{ if(Number(tx.EXPENSE)>0&&tx.TYPE) spentMap[tx.TYPE]=(spentMap[tx.TYPE]||0)+Number(tx.EXPENSE); });
   const groupSpent={}; BUDGET_GROUPS.forEach(({group,categories})=>{ groupSpent[group]=categories.reduce((s,c)=>s+(spentMap[c]||0),0); });
 

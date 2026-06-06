@@ -1,3 +1,4 @@
+import { saveBudgetPlansToSheet } from '../services/transactionService';
 import React, { useState, useEffect } from 'react';
 
 const C = { teal:'#0d9488', tealLight:'#2dd4bf', green:'#4ade80', muted:'#f0fdf4', border:'#d1fae5', text:'#134e4a', sub:'#6b7280' };
@@ -62,7 +63,7 @@ export default function Planning() {
     setActivePlan(parseInt(localStorage.getItem('activePlan')||'2'));
   },[]);
 
-  const savePlans=(p)=>{ setPlans(p); localStorage.setItem('budgetPlans',JSON.stringify(p)); };
+  const savePlans=(p)=>{ setPlans(p); localStorage.setItem('budgetPlans',JSON.stringify(p)); saveBudgetPlansToSheet(p); };
 
   const handleSetActive=(key)=>{
     setActivePlan(key); localStorage.setItem('activePlan',String(key));

@@ -116,13 +116,22 @@ function Dashboard() {
     return p.length === 3 ? `${p[2]}-${p[1]}` : null;
   }).filter(Boolean))].sort().reverse();
 
-  const filtered = selectedMonth
+  // Exclude REIMBURSE and REPAY from expense calculations (will be paid back)
+  const filtered = (selectedMonth
     ? transactions.filter(tx => {
         if (!tx.DATE) return false;
         const p = tx.DATE.split('/');
         return p.length === 3 && `${p[2]}-${p[1]}` === selectedMonth;
       })
-    : transactions;
+    : transactions
+  ).map(tx => {
+    // Zero out expense for reimbursable/repayable transactions
+    if ((tx.REIMBURSE===true||tx.REIMBURSE==='true') ||
+        (tx.REPAY===true||tx.REPAY==='true')) {
+      return { ...tx, EXPENSE: 0 };
+    }
+    return tx;
+  });
 
   const totalIncome   = filtered.reduce((s, tx) => s + (Number(tx.INCOME)   || 0), 0);
   const totalExpense  = filtered.reduce((s, tx) => s + (Number(tx.EXPENSE)  || 0), 0);

@@ -11,7 +11,7 @@ const CATEGORIES = { EXPENSE: EXPENSE_TYPES, INCOME: INCOME_TYPES };
 
 export default function ManualEntry() {
   const [mode, setMode] = useState('EXPENSE');
-  const [form, setForm] = useState({ date:'', time:'', amount:'', account:'เงินสด', destAccount:'KMA (บัญชีเล็ก)', category:'', description:'', payee:'', reimburse:false, repay:false, payBack:false, note:'', receipt:'' });
+  const [form, setForm] = useState({ date:'', time:'', amount:'', account:'เงินสด', destAccount:'KMA (บัญชีเล็ก)', category:'', description:'', payee:'', reimburse:false, repay:false, payBack:false, note:'', receipt:'', claimedFrom:'' });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [receipt, setReceipt] = useState(null);
@@ -80,7 +80,7 @@ export default function ManualEntry() {
       PAYEE_PAYER: form.payee||'', INCOME: mode==='INCOME'?amt:0,
       EXPENSE: mode==='EXPENSE'?amt:0, TRANSFER: mode==='TRANSFER'?amt:0,
       DESTINATION_ACCOUNT: mode==='TRANSFER'?form.destAccount:'',
-      NOTE: form.note||'', RECEIPT: form.receipt||'',
+      NOTE: form.note||'', RECEIPT: form.receipt||'', CLAIMED_FROM: form.claimedFrom||'',
     };
     try {
       let b64=null, mime=null;
@@ -100,7 +100,7 @@ export default function ManualEntry() {
     setForm({ date:`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`,
       time:`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
       amount:'', account:'เงินสด', destAccount:'KMA (บัญชีเล็ก)', category:EXPENSE_TYPES[0],
-      description:'', payee:'', reimburse:false, repay:false, payBack:false, note:'', receipt:'' });
+      description:'', payee:'', reimburse:false, repay:false, payBack:false, note:'', receipt:'', claimedFrom:'' });
     setMode('EXPENSE');
   };
 
@@ -236,6 +236,14 @@ export default function ManualEntry() {
               {(CATEGORIES[mode]||[]).map(c=><option key={c}>{c}</option>)}
             </select>
           </div>}
+          {form.repay && (
+            <div style={{marginBottom:16}}>
+              <label style={lbl}>Claimed From (org/company)</label>
+              <input type="text" value={form.claimedFrom} onChange={e=>hc('claimedFrom',e.target.value)}
+                placeholder="e.g. Mahidol University, บริษัท ABC"
+                style={inp}/>
+            </div>
+          )}
           {[['description','Description','text'],['payee','Payee / Payer','text'],['note','Note','text']].map(([f,l,t])=>(
             <div key={f} style={{marginBottom:16}}><label style={lbl}>{l}</label>
               <input type={t} value={form[f]} onChange={e=>hc(f,e.target.value)} style={inp}/>
@@ -255,7 +263,7 @@ export default function ManualEntry() {
           </div>
           {mode==='EXPENSE' && (
             <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
-              {[['reimburse','💰 Reimbursable (คืนเงิน)'],['repay','📋 Repayable (เบิกได้)'],['payBack','↩️ Pay Back']].map(([f,l])=>(
+              {[['reimburse','🔄 Friend owes me / I owe friend (คืนเงิน)'],['repay','🏢 Claimable from org (เบิกได้)'],['payBack','💸 Debt — borrowed / lending']].map(([f,l])=>(
                 <label key={f} style={{display:'flex',alignItems:'center',gap:10,fontSize:14,cursor:'pointer',color:C.sub}}>
                   <input type="checkbox" checked={form[f]} onChange={e=>hc(f,e.target.checked)} style={{width:16,height:16}}/>{l}
                 </label>

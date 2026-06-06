@@ -101,3 +101,17 @@ export async function fetchInitialBalances() {
   const data = await callGet('getInitialBalances');
   return data.balances || {};
 }
+
+
+
+// Budget Plans
+export function saveBudgetPlans(plans)  { return call({ action: 'saveBudgetPlans', data: plans }); }
+export async function fetchBudgetPlans() { const d = await callGet('getBudgetPlans'); return d.data; }
+
+// Savings Goals
+export function saveSavingsGoals(goals) { return call({ action: 'saveSavingsGoals', data: goals }); }
+export async function fetchSavingsGoals() { const d = await callGet('getSavingsGoals'); return d.data; }
+
+// Investments
+export function saveInvestments(invs)   { return call({ action: 'saveInvestments', data: invs }); }
+export async function fetchInvestments() { const d = await callGet('getInvestments'); return d.data; }
