@@ -275,5 +275,6 @@ export function toSheet(t) {
     RECEIPT:             t.RECEIPT || '',
     NOTE:                t.NOTE || '',
     CLAIMED_FROM:        t.CLAIMED_FROM || '',
+    SETTLED:             (t.SETTLED===true||t.SETTLED==='true'||t.SETTLED==='TRUE') ? true : false,
   };
 }

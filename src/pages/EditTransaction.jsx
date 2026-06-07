@@ -127,7 +127,7 @@ export default function EditTransaction() {
           {mode!=='TRANSFER'&&<div style={{marginBottom:16}}><label style={lbl}>Category</label>
             <select value={form.category} onChange={e=>hc('category',e.target.value)} style={inp}>{TYPES.map(t=><option key={t}>{t}</option>)}</select>
           </div>}
-          {form.repay && (
+          {(form.repay === true || form.repay === 'true') && (
             <div style={{marginBottom:16}}>
               <label style={lbl}>Claimed From (org/company)</label>
               <input type="text" value={form.claimedFrom||''} onChange={e=>hc('claimedFrom',e.target.value)}
@@ -148,13 +148,24 @@ export default function EditTransaction() {
             </label>
             {imagePreview&&<div style={{marginTop:8}}><img src={imagePreview} alt="preview" style={{maxWidth:'100%',maxHeight:160,borderRadius:8,border:`1px solid ${C.border}`}}/><button onClick={()=>{setImageFile(null);setImagePreview(null);}} style={{display:'block',marginTop:4,fontSize:11,color:'#ef4444',background:'none',border:'none',cursor:'pointer',padding:0}}>✕ ยกเลิกรูปใหม่</button></div>}
           </div>
-          {mode==='EXPENSE'&&(
+          {(mode==='EXPENSE'||mode==='INCOME')&&(
             <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
-              {[['reimburse','🔄 Friend owes me / I owe friend (คืนเงิน)'],['repay','🏢 Claimable from org (เบิกได้)'],['payBack','💸 Debt — borrowed / lending']].map(([f,l])=>(
-                <label key={f} style={{display:'flex',alignItems:'center',gap:10,fontSize:14,cursor:'pointer',color:C.sub}}>
-                  <input type="checkbox" checked={form[f]||false} onChange={e=>hc(f,e.target.checked)} style={{width:16,height:16}}/>{l}
-                </label>
-              ))}
+              <div style={{fontSize:11,fontWeight:700,color:C.sub,letterSpacing:.5,marginBottom:4}}>FLAGS (เลือกได้มากกว่า 1)</div>
+              {(mode==='INCOME' ? [
+                  ['reimburse','👥 เพื่อนคืนเงิน — เพื่อนจ่ายคืนที่ค้างอยู่'],
+                  ['repay','🏢 ได้รับเงินคืน — org/พ่อแม่โอนคืนให้'],
+                  ['payBack','💸 ยืมเงิน — เงินที่ยืมมา จะต้องคืน'],
+                ] : [
+                  ['reimburse','👥 ฉันจ่ายแทนเพื่อน — เพื่อนจะคืนให้ฉัน'],
+                  ['repay','🏢 เบิกได้ — จะได้รับคืนจาก org/พ่อแม่'],
+                  ['payBack','💸 กำลังคืนหนี้ — จ่ายคืนเงินที่ยืมมา'],
+                ]).map(([f,l]) => (
+                  <label key={f} style={{display:'flex',alignItems:'center',gap:10,fontSize:14,cursor:'pointer',color:(form[f]||false)?C.teal:C.sub,fontWeight:(form[f]||false)?700:400}}>
+                    <input type="checkbox" checked={form[f]||false}
+                      onChange={e=>setForm(p=>({...p,[f]:e.target.checked}))}
+                      style={{width:16,height:16}}/>{l}
+                  </label>
+                ))}
             </div>
           )}
           <div style={{display:'flex',gap:12,marginTop:8}}>
